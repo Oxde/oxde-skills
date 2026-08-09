@@ -1,0 +1,16 @@
+# build output — regenerate with `node build.mjs`
+dist/
+
+# ingested data — regenerate with the ingest/ scripts. Large and reproducible.
+data/catalog.json
+data/skillssh.json
+data/details/
+data/raw/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+.DS_Store
+node_modules/
+*.log
+.playwright-mcp/

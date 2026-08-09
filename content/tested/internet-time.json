@@ -1,0 +1,41 @@
+{
+  "slug": "internet-time",
+  "verdict": "mixed",
+  "testedAt": "2026-08-08",
+  "versionTested": "1.0.7",
+  "tester": "oxde lab · A02 harness",
+  "timeToFirstResult": "4 min",
+  "costPerRun": "$0.00 (local, no API)",
+  "scorecard": { "reliability": 5, "docsHonesty": 4 },
+  "oneLiner": "Correct, deterministic, zero-dependency — and it spends 2,061 context tokens to print a 4-character string.",
+  "summary": "We fetched SKILL.md v1.0.7 and verified the documented Swatch formula (BMT = UTC+1 fixed, no DST, one beat = 86.4s) with two independent reimplementations instead of executing the bundled script. Both returned @058 at 2026-08-08T00:24:34Z — the math is right, rollover is handled (%1000, @000 at day end), and it takes ISO timestamps for timezone conversion. It needs nothing but python3: no network, no credentials, no privileges. The catch is proportion: the SKILL.md costs ~2,061 tokens of your agent's context before a single beat is printed. Great citizen, expensive tenant.",
+  "evidence": [
+    {
+      "type": "scan",
+      "label": "Directive scan over SKILL.md (8,245 bytes ≈ 2,061 tokens)",
+      "run": "pattern scan: override-attempt / network-call / dangerous-shell / output-directive / credential-mention",
+      "output": "1 flag — output-directive: \"Output ONLY the beat time… no reasoning, no explanation\". Benign formatting demand, but it is an instruction aimed at your agent; no override attempts, no network calls, no shell risk, required_privileges: none."
+    },
+    {
+      "type": "command",
+      "label": "Independent verification of the documented formula (script not executed)",
+      "run": "python3: beat = int(((UTC+1h) seconds of day) / 86.4) % 1000  — cross-checked with day-fraction method",
+      "output": "UTC 2026-08-08T00:24:34Z → BMT seconds 5074 → @058 (method 1) — @058 (method 2). Matches the skill's documented algorithm exactly."
+    },
+    {
+      "type": "check",
+      "label": "Agent-fit checks",
+      "run": "headless / parseable / determinism review of SKILL.md",
+      "output": "Headless: yes (pure python3, no prompts). Deterministic for a given second. Output contract is strict and zero-padded (@000–@999) — trivially parseable. Edge case documented: beat 1000 renders as @000."
+    }
+  ],
+  "goodFor": [
+    "A harmless first skill to test an install pipeline end-to-end",
+    "Agents that answer '/beats' or Swatch-time trivia",
+    "Timezone-free timestamps in logs or dashboards, if you're feeling 1998"
+  ],
+  "notFor": [
+    "Anything where 2k tokens of context matters more than novelty",
+    "Precision timing — it floors to whole beats (86.4s resolution)"
+  ]
+}
