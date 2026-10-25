@@ -1,5 +1,7 @@
 # LinkedIn Editorial Radar — sources to candidates
 
+> **Superseded on 2026-10-25** by the research feed: see `feed/CRON.md`. Kept for one proving week as rollback.
+
 **Purpose:** Produce at most one evidence-backed LinkedIn candidate per run. It is the editorial job for news, primary-source leads, and niche signals. It is not the Skill Radar job and it never publishes.
 
 ## Canonical schedule

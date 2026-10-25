@@ -1,9 +1,14 @@
+# Build context is the repository root (railway.toml sets dockerfilePath = "linkedin/Dockerfile").
 FROM python:3.12-alpine
 
 WORKDIR /app
-COPY apps/linkedin-dashboard/public /app/public
+COPY feed /app/feed
+COPY linkedin/apps/linkedin-dashboard/public /app/public
 
-ENV PORT=8080
+ENV PORT=8080 \
+    FEED_STATIC=/app/public \
+    FEED_DB=/data/feed.db \
+    PYTHONUNBUFFERED=1
 EXPOSE 8080
 
-CMD ["sh", "-c", "python -m http.server ${PORT:-8080} --directory /app/public"]
+CMD ["python", "-m", "feed.service"]

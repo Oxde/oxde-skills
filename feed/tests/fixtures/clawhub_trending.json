@@ -1,0 +1,5 @@
+{"items": [
+ {"ownerHandle": "steipete", "slug": "sonoscli", "displayName": "Sonoscli", "summary": "Control Sonos speakers (discover/status/play/volume/group).", "topics": [], "stats": {"comments": 1, "downloads": 90362, "installs": 2841, "stars": 56, "versions": 1}, "createdAt": 1767545381030, "updatedAt": 1778485729679},
+ {"ownerHandle": "oxde", "slug": "agent-video-cutter", "displayName": "Agent Video Cutter", "summary": "Agent skill that cuts talking-head video with Claude Code.", "topics": ["video"], "stats": {"downloads": 120, "installs": 40, "stars": 3, "versions": 1}, "createdAt": 1777000000000, "updatedAt": 1777000000000},
+ {"ownerHandle": "x", "slug": "", "summary": "broken entry without slug", "stats": {}}
+], "nextCursor": null}

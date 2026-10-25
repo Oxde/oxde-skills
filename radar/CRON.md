@@ -1,5 +1,7 @@
 # Skill Radar cron contract
 
+> **Superseded on 2026-10-25** by the research feed: see `feed/CRON.md`. Kept for one proving week as rollback.
+
 ## Purpose
 
 Find fresh, potentially useful agent skills and workflow packs **without** turning registry rankings into content spam or auto-installing untrusted code.

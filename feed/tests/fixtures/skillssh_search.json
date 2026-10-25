@@ -1,0 +1,4 @@
+{"query": "agent skills", "searchType": "fuzzy", "skills": [
+ {"id": "coreyhaines31/marketingskills/ai-seo", "source": "coreyhaines31/marketingskills", "skillId": "ai-seo", "name": "ai-seo", "installs": 150411},
+ {"id": "obra/superpowers/brainstorming", "source": "obra/superpowers", "skillId": "brainstorming", "name": "brainstorming", "installs": 9000}
+], "count": 2}

@@ -1,0 +1,179 @@
+"""Thin HTTP client and CLI for the feed service. Used by Hermes jobs and the collect runner.
+
+Environment: FEED_URL (default http://127.0.0.1:4872), FEED_TOKEN.
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+from typing import Any
+from urllib.parse import urlencode
+
+DEFAULT_URL = "http://127.0.0.1:4872"
+DEFAULT_QUOTA = "news=4,skill=2,repo=2"
+LANE_TITLES = {"news": "NEWS", "skill": "SKILLS", "repo": "REPOS", "post": "POSTS", "video": "VIDEOS"}
+LANE_ORDER = ("news", "skill", "repo", "post", "video")
+REPLY_HINT = 'Reply with a number and what you want: "news post about 2", "video 3", "skip all".'
+EMPTY_MENU = "Research menu: nothing new."
+
+
+class FeedError(RuntimeError):
+    pass
+
+
+def _request(method: str, path: str, body: Any = None, query: dict[str, Any] | None = None) -> Any:
+    base = os.environ.get("FEED_URL", DEFAULT_URL).rstrip("/")
+    token = os.environ.get("FEED_TOKEN", "")
+    url = base + path + (f"?{urlencode({k: v for k, v in query.items() if v is not None})}" if query else "")
+    data = json.dumps(body, ensure_ascii=False).encode("utf-8") if body is not None else None
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, data=data, method=method, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode("utf-8") or "null")
+    except urllib.error.HTTPError as err:
+        raise FeedError(f"{method} {path} -> HTTP {err.code}: {err.read().decode('utf-8', errors='replace')[:500]}") from err
+    except urllib.error.URLError as err:
+        raise FeedError(f"{method} {path} -> {err.reason} (FEED_URL={base})") from err
+
+
+def post_ingest(items: list[dict[str, Any]]) -> dict[str, int]:
+    return _request("POST", "/api/ingest", {"items": items})
+
+
+def get_menu(quota: str = DEFAULT_QUOTA) -> list[dict[str, Any]]:
+    return _request("GET", "/api/menu", query={"quota": quota})["items"]
+
+
+def patch_item(iid: str, **fields: Any) -> dict[str, Any]:
+    return _request("PATCH", f"/api/items/{iid}", {k: v for k, v in fields.items() if v is not None})
+
+
+def get_stats(days: int = 7) -> dict[str, Any]:
+    return _request("GET", "/api/stats", query={"days": days})
+
+
+# -- rendering ------------------------------------------------------------------------
+
+
+def _latest_metrics(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw or "{}")
+        except json.JSONDecodeError:
+            return {}
+    if not isinstance(raw, dict) or not raw:
+        return {}
+    # Store keeps {date: {...}}; a producer dict is flat.
+    if all(isinstance(v, dict) for v in raw.values()):
+        return raw[max(raw)]
+    return raw
+
+
+def _metrics_suffix(item: dict[str, Any]) -> str:
+    metrics = _latest_metrics(item.get("metrics"))
+    parts = [f"{key} {metrics[key]}" for key in ("installs", "stars") if metrics.get(key) is not None]
+    return (" · " + " · ".join(parts)) if parts else ""
+
+
+def render_menu(items: list[dict[str, Any]], now: dt.datetime | None = None) -> str:
+    if not items:
+        return EMPTY_MENU
+    now = now or dt.datetime.now().astimezone()
+    slot = "morning" if now.hour < 13 else "afternoon"
+    lines = [f"Research menu · {now.strftime('%a')} {now.day} {now.strftime('%b')}, {slot}"]
+    number = 0
+    for lane in LANE_ORDER:
+        lane_items = [i for i in items if i.get("lane") == lane]
+        if not lane_items:
+            continue
+        lines += ["", LANE_TITLES[lane]]
+        for item in lane_items:
+            number += 1
+            lines.append(f"{number}. {item['title']} — {item['url']}")
+            lines.append(f"   id: {item['id']} · score {item.get('score', 0)} · {item.get('source', '')}{_metrics_suffix(item)}")
+    lines += ["", REPLY_HINT]
+    return "\n".join(lines)
+
+
+def render_stats(stats: dict[str, Any]) -> str:
+    lines = [f"Feed stats · last {stats.get('days', 7)} days", ""]
+    for lane, counts in stats.get("lanes", {}).items():
+        if not any(counts.values()):
+            continue
+        lines.append(f"{lane}: " + " · ".join(f"{k} {v}" for k, v in counts.items()))
+    sources = stats.get("sources") or []
+    if sources:
+        lines += ["", "Sources by pick rate:"]
+        for src in sources[:10]:
+            lines.append(f"- {src['source']} {src['picked']}/{src['collected']} ({round(src['pick_rate'] * 100)}%)")
+    last = stats.get("last_collected") or {}
+    if last:
+        lines += ["", "Last collected:"]
+        for producer, when in sorted(last.items()):
+            lines.append(f"- {producer} {when[:16]}")
+    return "\n".join(lines)
+
+
+# -- CLI ------------------------------------------------------------------------------
+
+
+def _read_stdin_items() -> list[dict[str, Any]]:
+    text = sys.stdin.read().strip()
+    if not text:
+        return []
+    if text.startswith("["):
+        return json.loads(text)
+    if text.startswith("{") and "\n" not in text:
+        payload = json.loads(text)
+        return payload["items"] if "items" in payload else [payload]
+    return [json.loads(line) for line in text.splitlines() if line.strip()]
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="feedctl", description="Client for the research feed service")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("ingest", help="read JSON lines (or {items:[...]}) from stdin and post them")
+    menu = sub.add_parser("menu", help="print the next menu as markdown")
+    menu.add_argument("--quota", default=DEFAULT_QUOTA)
+    pick = sub.add_parser("pick", help="mark an item picked")
+    pick.add_argument("id")
+    pick.add_argument("--note", default="")
+    status = sub.add_parser("set-status", help="set status and optional insight/why")
+    status.add_argument("id")
+    status.add_argument("status")
+    status.add_argument("--insight")
+    status.add_argument("--why")
+    stats = sub.add_parser("stats", help="print feed stats")
+    stats.add_argument("--days", type=int, default=7)
+    stats.add_argument("--json", action="store_true")
+    args = parser.parse_args(argv)
+    try:
+        if args.cmd == "ingest":
+            print(json.dumps(post_ingest(_read_stdin_items())))
+        elif args.cmd == "menu":
+            print(render_menu(get_menu(args.quota)))
+        elif args.cmd == "pick":
+            item = patch_item(args.id, status="picked", pick_note=args.note)
+            print(f"picked {item['id']}: {item['title']}")
+        elif args.cmd == "set-status":
+            item = patch_item(args.id, status=args.status, insight=args.insight, why=args.why)
+            print(f"{item['id']} -> {item['status']}")
+        elif args.cmd == "stats":
+            data = get_stats(args.days)
+            print(json.dumps(data, ensure_ascii=False, indent=1) if args.json else render_stats(data))
+    except FeedError as exc:
+        print(f"feedctl: {exc}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

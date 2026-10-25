@@ -1,0 +1,40 @@
+# Research feed sources. One entry per line, `#` starts a comment.
+# Edit here, not in code. Producers read the section they own.
+
+[telegram]
+data_secrets
+ai_machinelearning_big_data
+human20
+NeuralShit
+
+[rss]
+https://techcrunch.com/category/artificial-intelligence/feed/
+https://www.theverge.com/rss/ai-artificial-intelligence/index.xml
+https://venturebeat.com/category/ai/feed
+https://www.artificialintelligence-news.com/feed/
+https://news.mit.edu/rss/topic/artificial-intelligence2
+
+[clawhub_queries]
+agent
+video
+copywriting
+research
+
+[skillssh_queries]
+agent skills
+claude code
+video editing
+linkedin
+research
+automation
+
+[github_queries]
+agent skills | agent skills in:name,description stars:>=10
+Claude skills | claude skills in:name,description stars:>=10
+AI agent workflows | ai agent workflows in:name,description stars:>=20
+
+[github_watchlist]
+anthropics/skills
+vercel-labs/agent-skills
+openai/skills
+obra/superpowers

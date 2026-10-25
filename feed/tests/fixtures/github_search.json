@@ -1,0 +1,5 @@
+{"total_count": 3, "items": [
+ {"full_name": "acme/agent-skills", "html_url": "https://github.com/acme/agent-skills", "description": "A curated set of agent skills for Claude Code and Codex", "stargazers_count": 1200, "pushed_at": "2026-10-24T10:00:00Z", "license": {"spdx_id": "MIT"}, "topics": ["agents", "skills"], "archived": false, "fork": false},
+ {"full_name": "someone/old-fork", "html_url": "https://github.com/someone/old-fork", "description": "fork", "stargazers_count": 5, "pushed_at": "2026-10-24T10:00:00Z", "license": null, "topics": [], "archived": false, "fork": true},
+ {"full_name": "someone/archived", "html_url": "https://github.com/someone/archived", "description": "archived", "stargazers_count": 500, "pushed_at": "2026-10-24T10:00:00Z", "license": null, "topics": [], "archived": true, "fork": false}
+]}
