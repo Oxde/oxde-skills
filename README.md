@@ -17,6 +17,16 @@ node server.mjs                   # serve on :4871 (any Node)
 node --test rating/               # scoring golden tests
 ```
 
+## Operating systems
+
+The `oxde` branch is the complete personal working branch used by Mark/Oxde and external coding agents. It combines:
+
+- `radar/` — multi-source skill scouting across GitHub, ClawHub, and skills.sh
+- `linkedin/` — portable LinkedIn writer, dashboard, publish safeguards, and adapters
+- `linkedin/overlays/oxde/` — non-secret Oxde editorial/source/visual rules and collector scripts
+
+`main` stays portable. The Oxde overlay deliberately excludes credentials, browser sessions, private drafts, archives, and raw session history. See `linkedin/overlays/oxde/README.md` for the scheduler and environment contract.
+
 ## Layout
 
 | path | role |

@@ -1,0 +1,191 @@
+{
+  "generated_at": "2026-10-25T13:47:27.876339+00:00",
+  "analytics": {
+    "status": "not_connected",
+    "message": "Connect LinkedIn browser read access or a paid data provider to populate followers, impressions, comments, and replies.",
+    "followers": null,
+    "impressions_30d": null,
+    "comments_to_reply": null
+  },
+  "latest_posts": [
+    {
+      "published_at": "2026-10-25T13:38:01.226606+00:00",
+      "hook": "Anthropic now recommends collapsing a lot of multi-agent systems back into one main agent. / Not because subagents are dead.",
+      "urn": "urn:li:share:7520116456903077888",
+      "topic": "Anthropic single-agent loop"
+    },
+    {
+      "published_at": "2026-09-09T15:38:25.006393+00:00",
+      "hook": "OpenAI solved one of the Millennium Prize Problems with 10,000 AI agents. / This is one of those days people will point back to.",
+      "urn": "urn:li:share:7503476913525653504",
+      "topic": "OpenAI Navier-Stokes Millennium Prize Problem"
+    },
+    {
+      "published_at": "2026-09-06T11:02:23.358764+00:00",
+      "hook": "One Gemini agent found a cheat code. The others formed a society around it. / That\u2019s the short version of a new DeepMind preprint.",
+      "urn": "urn:li:share:7502320286994849793",
+      "topic": "DeepMind emergent cheating and whistleblowing in autonomous research swarms"
+    },
+    {
+      "published_at": "2026-09-04T10:04:10.460561+00:00",
+      "hook": "ChatGPT just got its AGI model: GPT-6 Astra. / AI is absorbing every layer of software.",
+      "urn": "urn:li:ugcPost:7501580859691663360",
+      "topic": ""
+    },
+    {
+      "published_at": "2026-09-03T11:05:46.622191+00:00",
+      "hook": "Gemini 3.8 Flash is getting close to Opus-tier scores for a fraction of the price. / Google just released the new Flash model, and this is the simple story:",
+      "urn": "urn:li:share:7501233977756782594",
+      "topic": "Gemini 3.8 Flash release"
+    },
+    {
+      "published_at": "2026-08-30T12:11:42.942708+00:00",
+      "hook": "OpenAI is cutting Cursor off from its models. Cursor\u2019s reply was basically: that\u2019s 5% of our traffic. / That is a nasty little number.",
+      "urn": "urn:li:share:7499801019485245440",
+      "topic": "OpenAI Cursor model access cutoff"
+    },
+    {
+      "published_at": "2026-08-29T12:08:32.096617+00:00",
+      "hook": "GLM-5.3 is Fable-level AI you can download and run yourself. / Z.ai launched the model on August 18. Ten days later, the official weights landed on Hugging Face.",
+      "urn": "urn:li:share:7499437831782649856",
+      "topic": "GLM-5.3 open weights"
+    },
+    {
+      "published_at": "2026-08-12T10:33:00.676078+00:00",
+      "hook": "SpaceXAI just released Grok Bot: a messenger for your agents. / You log in once, give bots the access they need, and each agent gets its own virtual computer.",
+      "urn": "urn:li:share:7493253199013859329",
+      "topic": "Grok Bot agent messenger"
+    },
+    {
+      "published_at": "2026-08-04T10:39:16.833484+00:00",
+      "hook": "Qwen 3.8-Max can work autonomously for 16 days. / That sentence sounds insane until you realize where agents are going.",
+      "urn": "urn:li:share:7490355673168379904",
+      "topic": "Qwen 3.8-Max 16-day autonomous agent model"
+    },
+    {
+      "published_at": "2026-07-23T09:33:30.326128+00:00",
+      "hook": "Claude Cowork just killed the repetitive tasks that live in your head. / New feature: Record a skill.",
+      "urn": "urn:li:share:7485990464953769984",
+      "topic": "Claude Cowork Record a skill"
+    },
+    {
+      "published_at": "2026-07-20T12:49:18.317861+00:00",
+      "hook": "AI agents attacked Hugging Face. Another LLM helped defend it. / That\u2019s the part worth paying attention to.",
+      "urn": "urn:li:share:7484952575105040384",
+      "topic": "Hugging Face AI-agent security incident"
+    },
+    {
+      "published_at": "2026-07-17T13:21:41.479571+00:00",
+      "hook": "Kimi K3 is open, almost 2x cheaper than Opus 4.8, and already beating it. / Moonshot\u2019s new model doesn\u2019t beat Fable and Sol everywhere.",
+      "urn": "urn:li:share:7483873563838513152",
+      "topic": "Kimi K3 open-source frontier model catching up"
+    }
+  ],
+  "active_items": [
+    {
+      "title": "anthropic-single-agent-loop",
+      "status": "posted",
+      "note": "public post verified at `urn:li:share:7520116456903077888`. Monitor at +30m, +2h, and +24h when LinkedIn read access is available."
+    },
+    {
+      "title": "ai-subscription-index-longform",
+      "status": "drafting",
+      "note": "long table-led X-style article with the actual subscription landscape, model/coding verdicts, and source links. Needs boss fact/voice review before carousel adaptation."
+    },
+    {
+      "title": "ai-subscription-index-verdict",
+      "status": "superseded",
+      "note": "short-post attempt rejected and replaced by the long-form article."
+    },
+    {
+      "title": "ai-subscription-index-2026",
+      "status": "researching",
+      "note": "evidence ledger and report supporting the long-form draft; fixed-workload testing still open."
+    },
+    {
+      "title": "openai-model-picker-guide",
+      "status": "waiting-for-boss",
+      "note": "visual was re-rendered after a rejected overlap bug. Copy + card now await review."
+    },
+    {
+      "title": "karpathy-output-formats",
+      "status": "drafting",
+      "note": "rewrite short/dense; prior draft rejected as long/not meaty."
+    },
+    {
+      "title": "google-agentic-teammate-paper",
+      "status": "parked",
+      "note": "voice-learning example from boss, only continue when asked."
+    }
+  ],
+  "sources": [
+    {
+      "name": "Data Secrets",
+      "type": "Telegram lead",
+      "status": "active",
+      "url": "https://t.me/s/data_secrets"
+    },
+    {
+      "name": "Human 2.0",
+      "type": "Telegram lead",
+      "status": "active",
+      "url": "https://t.me/s/human20"
+    },
+    {
+      "name": "AI / ML / Big Data",
+      "type": "Telegram lead",
+      "status": "active",
+      "url": "https://t.me/s/ai_machinelearning_big_data"
+    },
+    {
+      "name": "TechCrunch AI",
+      "type": "RSS",
+      "status": "active",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/"
+    },
+    {
+      "name": "The Verge AI",
+      "type": "RSS",
+      "status": "active",
+      "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+    },
+    {
+      "name": "VentureBeat AI",
+      "type": "RSS",
+      "status": "active",
+      "url": "https://venturebeat.com/category/ai/feed"
+    }
+  ],
+  "queues": [
+    {
+      "name": "AI News Desk",
+      "schedule": "10:00 + 14:00 daily",
+      "status": "active",
+      "purpose": "One verified candidate from news leads and primary sources."
+    },
+    {
+      "name": "Active Draft Closer",
+      "schedule": "every 15 minutes when a draft is active",
+      "status": "active",
+      "purpose": "Ask for the smallest decision until draft is finished; never posts."
+    },
+    {
+      "name": "Post Performance",
+      "schedule": "09:00 daily",
+      "status": "waiting for read adapter",
+      "purpose": "Metrics, comments, reply drafts, and one learning after a recent post."
+    },
+    {
+      "name": "Niche Feed Intelligence",
+      "schedule": "planned",
+      "status": "needs paid data adapter",
+      "purpose": "Analyze AI/operator posts, hooks, visible engagement, and comment opportunities."
+    },
+    {
+      "name": "Skills Review Desk",
+      "schedule": "planned",
+      "status": "planned",
+      "purpose": "Find, test, and review agent skills/repos before writing about them."
+    }
+  ]
+}
