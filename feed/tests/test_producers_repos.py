@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import urllib.error
 import unittest
 from contextlib import redirect_stderr
 from datetime import datetime, timezone
@@ -41,6 +42,25 @@ class GithubTest(unittest.TestCase):
         with mock.patch.object(common, "fetch_json", return_value=SEARCH) as fetched, mock.patch.dict(os.environ, {"GH_TOKEN": "abc"}):
             repos.github_search("x", "x", since_date="2026-10-04", now=NOW)
         self.assertEqual(fetched.call_args[1]["headers"]["Authorization"], "Bearer abc")
+
+    def test_dead_gh_token_falls_back_to_anonymous(self):
+        calls = []
+
+        def fake(url, timeout=25, headers=None):
+            calls.append(headers.get("Authorization"))
+            if headers.get("Authorization"):
+                raise urllib.error.HTTPError(url, 401, "Unauthorized", {}, None)
+            return SEARCH
+
+        repos._token_rejected = False
+        err = io.StringIO()
+        with mock.patch.object(common, "fetch_json", side_effect=fake), mock.patch.dict(os.environ, {"GH_TOKEN": "dead"}), redirect_stderr(err):
+            items = repos.github_search("x", "x", since_date="2026-10-04", now=NOW)
+            repos.github_search("y", "y", since_date="2026-10-04", now=NOW)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(calls, ["Bearer dead", None, None])  # retried once, then anonymous for the run
+        self.assertIn("GH_TOKEN rejected (401)", err.getvalue())
+        repos._token_rejected = False
 
     def test_collect_tolerates_failed_source(self):
         def fake(url, timeout=25, headers=None):

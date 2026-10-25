@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime as dt
 import math
 import os
+import urllib.error
 from typing import Any
 from urllib.parse import urlencode
 
@@ -15,12 +16,28 @@ PER_QUERY = 12
 API = "https://api.github.com"
 
 
-def _headers() -> dict[str, str]:
+_token_rejected = False
+
+
+def _headers(with_token: bool = True) -> dict[str, str]:
     headers = {"Accept": "application/vnd.github+json"}
     token = os.environ.get("GH_TOKEN")
-    if token:
+    if token and with_token and not _token_rejected:
         headers["Authorization"] = f"Bearer {token}"
     return headers
+
+
+def _fetch(url: str) -> Any:
+    """GitHub GET; a 401 means GH_TOKEN is dead, so fall back to anonymous for the rest of the run."""
+    global _token_rejected
+    try:
+        return common.fetch_json(url, headers=_headers())
+    except urllib.error.HTTPError as err:
+        if err.code == 401 and "Authorization" in _headers():
+            _token_rejected = True
+            common.report_failure("repos", "github:auth", RuntimeError("GH_TOKEN rejected (401); continuing without it"))
+            return common.fetch_json(url, headers=_headers(with_token=False))
+        raise
 
 
 def _score(text: str, stars: int, pushed: dt.datetime | None, now: dt.datetime) -> int:
@@ -46,7 +63,7 @@ def _item(raw: dict[str, Any], source: str, now: dt.datetime) -> dict[str, Any] 
 def github_search(label: str, query: str, *, since_date: str, now: dt.datetime | None = None) -> list[dict[str, Any]]:
     now = now or dt.datetime.now(dt.timezone.utc)
     url = f"{API}/search/repositories?" + urlencode({"q": f"{query} pushed:>={since_date}", "sort": "updated", "order": "desc", "per_page": PER_QUERY})
-    payload = common.fetch_json(url, headers=_headers())
+    payload = _fetch(url)
     out = []
     for raw in payload.get("items", []):
         item = _item(raw, f"github:search:{label}", now)
@@ -57,7 +74,7 @@ def github_search(label: str, query: str, *, since_date: str, now: dt.datetime |
 
 def github_repo(full_name: str, now: dt.datetime | None = None) -> dict[str, Any] | None:
     now = now or dt.datetime.now(dt.timezone.utc)
-    return _item(common.fetch_json(f"{API}/repos/{full_name}", headers=_headers()), "github:watchlist", now)
+    return _item(_fetch(f"{API}/repos/{full_name}"), "github:watchlist", now)
 
 
 def collect(now: dt.datetime | None = None) -> list[dict[str, Any]]:
