@@ -14,41 +14,42 @@ FEED_TOKEN=<same value as the FEED_TOKEN variable on that Railway service>
 GH_TOKEN=<optional, raises the GitHub search rate limit>
 ```
 
-Scripts are symlinked from the Git checkout into the profile's scripts directory:
+Scripts are **copied** (Hermes rejects symlinks that resolve outside its scripts directory)
+from the Git checkout into the profile's scripts directory; each copy finds the checkout through
+`OXDE_SKILLS` (default `~/AI-Agent-Media-Business/oxde-skills`). Re-copy after every pull.
 
 ```bash
-cd ~/.hermes/profiles/writer/scripts
-ln -sf ~/AI-Agent-Media-Business/oxde-skills/feed/run_menu.sh feed-run_menu.sh
-ln -sf ~/AI-Agent-Media-Business/oxde-skills/feed/run_collect.sh feed-run_collect.sh
-ln -sf ~/AI-Agent-Media-Business/oxde-skills/feed/run_stats.sh feed-run_stats.sh
-mkdir -p ../skills/feed && cp ~/AI-Agent-Media-Business/oxde-skills/feed/SKILL.md ../skills/feed/SKILL.md
+R=~/AI-Agent-Media-Business/oxde-skills; S=~/.hermes/profiles/writer/scripts
+cp $R/feed/run_menu.sh $S/feed-run_menu.sh; cp $R/feed/run_collect.sh $S/feed-run_collect.sh; cp $R/feed/run_stats.sh $S/feed-run_stats.sh
+mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 ```
 
 ## Jobs (profile `writer`)
 
 | job | schedule | mode | what |
 |---|---|---|---|
-| `feed-menu` | `30 9,16 * * *` | agent + monitor | prints the menu, runs the agent only when it changed, sends the Telegram menu |
+| `feed-menu` | `30 9,16 * * *` | agent | prints the menu into the prompt; the agent replies `[SILENT]` on `nothing new` |
 | `feed-collect` | `0 9,15 * * *` | `--no-agent`, paused when Railway cron is on | runs the producers against the hosted service |
 | `feed-stats` | `0 18 * * 0` | `--no-agent` | weekly stats to Telegram |
 
 ```bash
 hermes -p writer cron create "30 9,16 * * *" --name feed-menu \
-  --script feed-run_menu.sh --monitor-script feed-run_menu.sh \
+  --script feed-run_menu.sh \
   --skill feed --skill linkedin-writer --skill linkedin-hooks \
-  --deliver origin --failure-deliver origin \
+  --deliver telegram --failure-deliver telegram \
   "$(cat ~/AI-Agent-Media-Business/oxde-skills/feed/prompts/menu.md)"
 
 hermes -p writer cron create "0 9,15 * * *" --name feed-collect --no-agent \
-  --script feed-run_collect.sh --deliver local --failure-deliver origin
+  --script feed-run_collect.sh --deliver local --failure-deliver telegram
 
 hermes -p writer cron create "0 18 * * 0" --name feed-stats --no-agent \
-  --script feed-run_stats.sh --deliver origin
+  --script feed-run_stats.sh --deliver telegram
 ```
 
-Monitor mode hashes the script output; `Research menu: nothing new.` is stable, so an empty feed
-costs no model call. A `--no-agent` job with empty stdout is silent; `feed-collect` prints one
-summary line, delivered to `local` (the log), and failures go to Telegram.
+`--monitor-script` is deliberately not used on `feed-menu`: the monitor would run the menu
+script a second time per tick and count an extra offer on every item. An empty menu is one cheap
+model call that ends in `[SILENT]`. A `--no-agent` job with empty stdout is silent; `feed-collect`
+prints one summary line, delivered to `local` (the log), and failures go to Telegram.
 
 ## Railway cron (when enabled)
 

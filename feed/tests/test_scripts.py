@@ -76,7 +76,7 @@ class HermesFilesTest(unittest.TestCase):
         for name in ("feed-menu", "feed-collect", "feed-stats"):
             self.assertIn(name, text)
         self.assertIn("30 9,16 * * *", text)
-        self.assertIn("--monitor-script", text)
+        self.assertIn("--monitor-script", text)  # the doc explains why it is not used
         self.assertNotIn("1f990ab4df95", text)
         self.assertNotIn("dfbc156f55c1", text)
 
