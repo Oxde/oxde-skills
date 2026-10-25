@@ -32,7 +32,7 @@ mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 | `feed-menu` | `30 9,16 * * *` | agent | prints the menu into the prompt; the agent replies `[SILENT]` on `nothing new` |
 | `feed-collect` | `0 9,15 * * *` | `--no-agent`, paused when Railway cron is on | runs the producers against the hosted service |
 | `feed-stats` | `0 18 * * 0` | `--no-agent` | weekly stats to Telegram |
-| `skill-desk` | `0 11 * * 2,4` | agent + `skill-posts`, `LinkedIn Writer` | picks one skill/repo, fills the ledger, sends one draft for a decision |
+| `skill-desk` | `0 11 * * 2,4` | agent + `skill-posts` | judges the top skill/repo candidates against the known option, reports 2–3 with verdicts, marks the generic ones skipped with the reason |
 
 ```bash
 hermes -p writer cron create "30 9,16 * * *" --name feed-menu \
@@ -47,15 +47,18 @@ hermes -p writer cron create "0 18 * * 0" --name feed-stats --no-agent \
   --script feed-run_stats.sh --deliver telegram
 
 hermes -p writer cron create "0 11 * * 2,4" --name skill-desk \
-  --script feed-run_skill_desk.sh --skill skill-posts --skill "LinkedIn Writer" \
+  --script feed-run_skill_desk.sh --skill skill-posts \
   --deliver telegram --failure-deliver telegram \
   "$(cat ~/AI-Agent-Media-Business/oxde-skills/feed/prompts/skill_desk.md)"
 ```
 
 `skill-desk` is the second pipeline next to the news menu: it reads score-ordered candidates
-through `feedctl top` (which does **not** mark them offered), drafts one post per run following
-`skill-posts`, marks that item `drafted`, and leaves the rest untouched. Mark answers "draft it",
-"test it" or "skip" in the same chat; the writer skill carries the follow-through.
+through `feedctl top` (which does **not** mark them offered), judges each against the best-known
+option in its category, reports two or three with a verdict, and marks the generic ones
+`skipped` with the reason so they never return. Mark answers "draft 2", "test 2" or "skip" in the
+same chat; the writer skill and `skill-posts` carry the drafting. The LinkedIn Writer skill is not
+attached to the desk any more: judging needs the repo page, not the voice rules (that cut the
+prompt from 42k to about 12k characters).
 
 `feed-menu` attaches **no skills**: the writer skills add ~45k characters of context the menu
 job never uses, and the `feed` skill is for the main chat agent that handles Mark's pick (it is

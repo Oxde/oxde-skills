@@ -27,6 +27,15 @@ own words, often by voice: "news post about 2", "let's do the skill one", "video
    `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh set-status <id> skipped`. If he asks for a video from it, record
    `--note "video: ..."` on the pick and leave the status `picked`; Cutroom reads picked items.
 
+## When Mark answers the skill desk
+
+The `skill-desk` job posts judged candidates ("Verdict: strong / watch") instead of a draft.
+"draft 2" means: record the pick as above, then write the post following the `skill-posts`
+skill (evidence ledger first, breakdown by default) and go through the writer's approval flow.
+"test 2" means: run it in a scratch directory with no secrets first (see the Skill Radar safety
+gates), then draft with the run as the receipt. "skip 2" or "skip all": `set-status <id> skipped
+--why "<Mark's reason, verbatim>"` so the feed remembers his bar.
+
 ## Never
 
 - Publish, comment, react, connect, or DM. The writer's approval flow is the only path.

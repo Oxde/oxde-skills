@@ -51,7 +51,7 @@ class RunMenuScriptTest(unittest.TestCase):
 
     def test_skill_desk_prompt_contains_contract(self):
         text = (FEED / "prompts" / "skill_desk.md").read_text()
-        for needle in ("Skill desk: no candidates.", "reply exactly `[SILENT]`", "set-status <id> drafted", "skill-posts", "eight-field ledger", '"draft it"', "never publish, install, execute"):
+        for needle in ("Skill desk: no candidates.", "reply exactly `[SILENT]`", "set-status <id> skipped --why", "Vs <known option>", "Verdict: <strong | watch>", '"draft 1"', "never publish, install, execute"):
             self.assertIn(needle, text, needle)
 
     def test_run_collect_script_is_executable_and_points_at_collect(self):
