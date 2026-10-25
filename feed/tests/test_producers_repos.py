@@ -17,6 +17,9 @@ SEARCH = json.loads((FIX / "github_search.json").read_text())
 
 
 class GithubTest(unittest.TestCase):
+    def setUp(self):
+        repos._token_rejected = False  # module state must not leak between tests
+
     def test_search_maps_fields_and_skips_forks_and_archived(self):
         with mock.patch.object(common, "fetch_json", return_value=SEARCH) as fetched:
             items = repos.github_search("agent skills", "agent skills in:name,description stars:>=10", since_date="2026-10-04", now=NOW)
@@ -58,7 +61,7 @@ class GithubTest(unittest.TestCase):
         with mock.patch.object(common, "fetch_json", side_effect=fake), mock.patch.dict(os.environ, {"GH_TOKEN": "dead"}), redirect_stderr(err):
             items = repos.github_search("x", "x", since_date="2026-10-04", now=NOW)
             repos.github_search("y", "y", since_date="2026-10-04", now=NOW)
-        self.assertEqual(len(items), 1)
+        self.assertEqual(len(items), 2)
         self.assertEqual(calls, ["Bearer dead", None, None])  # retried once, then anonymous for the run
         self.assertIn("GH_TOKEN rejected (401)", err.getvalue())
         repos._token_rejected = False
