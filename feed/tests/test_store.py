@@ -232,6 +232,11 @@ class UpdateListTest(StoreTestCase):
         self.assertEqual(len(self.store.list(status="new,shown")), 3)
         self.assertEqual(len(self.store.list(since=NOW - timedelta(days=1))), 1)
         self.assertEqual(len(self.store.list(limit=2)), 2)
+        self.assertEqual(len(self.store.list(lane="news,skill")), 3)
+        by_score = self.store.list(order="score")
+        self.assertEqual([i["score"] for i in by_score], sorted((i["score"] for i in by_score), reverse=True))
+        with self.assertRaises(ValueError):
+            self.store.list(order="bogus")
 
 
 class StatsTest(StoreTestCase):

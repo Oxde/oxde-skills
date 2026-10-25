@@ -58,8 +58,25 @@ def patch_item(iid: str, **fields: Any) -> dict[str, Any]:
     return _request("PATCH", f"/api/items/{iid}", {k: v for k, v in fields.items() if v is not None})
 
 
-def get_items(status: str | None = None, lane: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
-    return _request("GET", "/api/items", query={"status": status, "lane": lane, "limit": limit})["items"]
+def get_items(status: str | None = None, lane: str | None = None, limit: int = 50, order: str = "collected") -> list[dict[str, Any]]:
+    return _request("GET", "/api/items", query={"status": status, "lane": lane, "limit": limit, "order": order})["items"]
+
+
+def render_candidates(items: list[dict[str, Any]], now: dt.datetime | None = None) -> str:
+    """Score-ordered candidates for a desk job: like the menu, with summaries, without offering."""
+    if not items:
+        return "Skill desk: no candidates."
+    now = now or dt.datetime.now().astimezone()
+    lines = [f"Skill desk candidates · {now.strftime('%a')} {now.day} {now.strftime('%b')}"]
+    for n, item in enumerate(items, 1):
+        lines.append(f"{n}. [{item['lane']}] {item['title']} — {item['url']}")
+        lines.append(f"   id: {item['id']} · status {item['status']} · score {item.get('score', 0)} · {item.get('source', '')}{_metrics_suffix(item)}")
+        summary = " ".join((item.get("summary") or "").split())
+        if summary:
+            lines.append(f"   summary: {summary[:220]}{'…' if len(summary) > 220 else ''}")
+        if item.get("insight"):
+            lines.append(f"   insight: {item['insight']}")
+    return "\n".join(lines)
 
 
 def render_items(items: list[dict[str, Any]]) -> str:
@@ -186,6 +203,10 @@ def main(argv: list[str] | None = None) -> int:
     lst.add_argument("--status", default="offered,shown,picked")
     lst.add_argument("--lane")
     lst.add_argument("--limit", type=int, default=50)
+    top = sub.add_parser("top", help="score-ordered candidates for a desk job (does not offer them)")
+    top.add_argument("--lanes", default="skill,repo")
+    top.add_argument("--status", default="new,offered,shown")
+    top.add_argument("--n", type=int, default=6)
     stats = sub.add_parser("stats", help="print feed stats")
     stats.add_argument("--days", type=int, default=7)
     stats.add_argument("--json", action="store_true")
@@ -203,6 +224,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{item['id']} -> {item['status']}")
         elif args.cmd == "list":
             print(render_items(get_items(args.status, args.lane, args.limit)))
+        elif args.cmd == "top":
+            print(render_candidates(get_items(args.status, args.lanes, args.n, order="score")))
         elif args.cmd == "stats":
             data = get_stats(args.days)
             print(json.dumps(data, ensure_ascii=False, indent=1) if args.json else render_stats(data))

@@ -144,6 +144,7 @@ class FeedHandler(SimpleHTTPRequestHandler):
                     lane=query.get("lane"),
                     since=_parse_since(query.get("since")),
                     limit=int(query.get("limit", "200")),
+                    order=query.get("order", "collected"),
                 )
                 self._json(200, {"items": items})
                 return True

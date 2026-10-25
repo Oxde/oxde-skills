@@ -44,6 +44,16 @@ class RunMenuScriptTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(result.stdout.startswith("Feed stats"))
 
+    def test_run_skill_desk_prints_no_candidates_on_empty_service(self):
+        result = subprocess.run(["bash", str(FEED / "run_skill_desk.sh")], env=self.env, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "Skill desk: no candidates.\n")
+
+    def test_skill_desk_prompt_contains_contract(self):
+        text = (FEED / "prompts" / "skill_desk.md").read_text()
+        for needle in ("Skill desk: no candidates.", "reply exactly `[SILENT]`", "set-status <id> drafted", "skill-posts", "eight-field ledger", '"draft it"', "never publish, install, execute"):
+            self.assertIn(needle, text, needle)
+
     def test_run_collect_script_is_executable_and_points_at_collect(self):
         text = (FEED / "run_collect.sh").read_text()
         self.assertIn("feed.collect", text)
@@ -82,7 +92,7 @@ class HermesFilesTest(unittest.TestCase):
 
     def test_cron_doc_has_no_job_ids_and_names_three_jobs(self):
         text = (FEED / "CRON.md").read_text()
-        for name in ("feed-menu", "feed-collect", "feed-stats"):
+        for name in ("feed-menu", "feed-collect", "feed-stats", "skill-desk"):
             self.assertIn(name, text)
         self.assertIn("30 9,16 * * *", text)
         self.assertIn("--monitor-script", text)  # the doc explains why it is not used

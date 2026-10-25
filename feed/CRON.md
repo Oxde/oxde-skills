@@ -20,7 +20,8 @@ from the Git checkout into the profile's scripts directory; each copy finds the 
 
 ```bash
 R=~/AI-Agent-Media-Business/oxde-skills; S=~/.hermes/profiles/writer/scripts
-for f in run_menu run_collect run_stats ctl; do cp $R/feed/$f.sh $S/feed-$f.sh; done
+for f in run_menu run_collect run_stats run_skill_desk ctl; do cp $R/feed/$f.sh $S/feed-$f.sh; done
+mkdir -p $S/../skills/skill-posts && cp $R/linkedin/skills/skill-posts/*.md $S/../skills/skill-posts/
 mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 ```
 
@@ -31,6 +32,7 @@ mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 | `feed-menu` | `30 9,16 * * *` | agent | prints the menu into the prompt; the agent replies `[SILENT]` on `nothing new` |
 | `feed-collect` | `0 9,15 * * *` | `--no-agent`, paused when Railway cron is on | runs the producers against the hosted service |
 | `feed-stats` | `0 18 * * 0` | `--no-agent` | weekly stats to Telegram |
+| `skill-desk` | `0 11 * * 2,4` | agent + `skill-posts`, `LinkedIn Writer` | picks one skill/repo, fills the ledger, sends one draft for a decision |
 
 ```bash
 hermes -p writer cron create "30 9,16 * * *" --name feed-menu \
@@ -43,7 +45,17 @@ hermes -p writer cron create "0 9,15 * * *" --name feed-collect --no-agent \
 
 hermes -p writer cron create "0 18 * * 0" --name feed-stats --no-agent \
   --script feed-run_stats.sh --deliver telegram
+
+hermes -p writer cron create "0 11 * * 2,4" --name skill-desk \
+  --script feed-run_skill_desk.sh --skill skill-posts --skill "LinkedIn Writer" \
+  --deliver telegram --failure-deliver telegram \
+  "$(cat ~/AI-Agent-Media-Business/oxde-skills/feed/prompts/skill_desk.md)"
 ```
+
+`skill-desk` is the second pipeline next to the news menu: it reads score-ordered candidates
+through `feedctl top` (which does **not** mark them offered), drafts one post per run following
+`skill-posts`, marks that item `drafted`, and leaves the rest untouched. Mark answers "draft it",
+"test it" or "skip" in the same chat; the writer skill carries the follow-through.
 
 `feed-menu` attaches **no skills**: the writer skills add ~45k characters of context the menu
 job never uses, and the `feed` skill is for the main chat agent that handles Mark's pick (it is

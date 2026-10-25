@@ -318,7 +318,10 @@ class Store:
         lane: str | None = None,
         since: datetime | None = None,
         limit: int = 200,
+        order: str = "collected",
     ) -> list[dict[str, Any]]:
+        if order not in ("collected", "score"):
+            raise ValueError(f"order must be collected or score, not {order!r}")
         where: list[str] = []
         params: list[Any] = []
         if status:
@@ -326,15 +329,16 @@ class Store:
             where.append(f"status IN ({','.join('?' for _ in statuses)})")
             params.extend(statuses)
         if lane:
-            where.append("lane = ?")
-            params.append(lane)
+            lanes = [l.strip() for l in lane.split(",") if l.strip()]
+            where.append(f"lane IN ({','.join('?' for _ in lanes)})")
+            params.extend(lanes)
         if since is not None:
             where.append("collected_at >= ?")
             params.append(_iso(since))
         sql = "SELECT * FROM items"
         if where:
             sql += " WHERE " + " AND ".join(where)
-        sql += " ORDER BY collected_at DESC, score DESC LIMIT ?"
+        sql += " ORDER BY score DESC, collected_at DESC LIMIT ?" if order == "score" else " ORDER BY collected_at DESC, score DESC LIMIT ?"
         params.append(int(limit))
         with self._connect() as conn:
             rows = conn.execute(sql, params).fetchall()
