@@ -152,7 +152,7 @@ class LiveClientTest(unittest.TestCase):
         code, out, _ = self._cli(["list"])
         self.assertEqual(code, 0)
         self.assertIn(f"{ids[0]} · picked · news ·", out)
-        self.assertEqual(len(out.strip().splitlines()), 4)
+        self.assertEqual(sum(1 for l in out.splitlines() if " · " in l and not l.startswith(" ")), 4)  # one row per item, reason lines indented
         code, out, _ = self._cli(["list", "--status", "new"])
         self.assertEqual(out.strip(), "No items.")
         code, out, _ = self._cli(["top", "--lanes", "news,skill", "--n", "2"])
@@ -166,11 +166,23 @@ class LiveClientTest(unittest.TestCase):
         code, out, _ = self._cli(["top", "--lanes", "news,skill", "--n", "4"])
         self.assertIn("[skill]", out)  # the lower-scored lane still gets its share
         self.assertEqual(out.count("\n   id: "), 3)  # 2 news + 1 skill available
+        self._cli(["set-status", ids[1], "skipped", "--why", "generic: another x", "--kind", "framework"])
+        code, out, _ = self._cli(["top", "--lanes", "news,skill", "--n", "4"])
+        self.assertEqual(out.count("\n   id: "), 2)
+        self.assertIn("Recently skipped (Mark's bar; do not resurface these):", out)
+        self.assertIn("— generic: another x", out)
+        code, out, _ = self._cli(["list", "--status", "skipped"])
+        self.assertIn("· skipped · news · framework ·", out)
+        self.assertIn("   why: generic: another x", out)
+        self._cli(["set-status", ids[2], "shown", "--kind", "framework"])
+        code, out, _ = self._cli(["top", "--lanes", "news,skill", "--n", "4"])
+        self.assertEqual(out.count("\n   id: "), 1)  # frameworks are excluded from the desk by default
         code, out, _ = self._cli(["stats", "--days", "7"])
         self.assertEqual(code, 0)
         self.assertIn("news: collected 3", out)
         code, out, _ = self._cli(["menu"])
-        self.assertIn("news story", out)  # offered items come back until shown or offered three times
+        self.assertIn("skill story", out)  # the only item still eligible: offered once, not shown, not skipped
+        self.assertNotIn("news story", out)
         code, out, _ = self._cli(["menu"])
         self.assertEqual(out.strip(), "Research menu: nothing new.")  # two offers each, never shown
 

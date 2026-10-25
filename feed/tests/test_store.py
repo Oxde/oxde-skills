@@ -115,6 +115,20 @@ class IngestTest(StoreTestCase):
         self.assertIsNone(self.store.get("nope"))
 
 
+class MigrationTest(unittest.TestCase):
+    def test_old_database_without_kind_column_is_migrated(self):
+        import sqlite3
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = str(Path(tmp) / "old.db")
+            conn = sqlite3.connect(path)
+            conn.executescript(Store.__init__.__globals__["SCHEMA"].replace(",\n    kind TEXT NOT NULL DEFAULT ''", ""))
+            conn.close()
+            store = Store(path)
+            store.ingest([NEWS_ITEM], now=NOW)
+            self.assertEqual(store.get(NEWS_ID)["kind"], "")
+
+
 class VelocityTest(StoreTestCase):
     def test_velocity_and_bonus(self):
         hist = {"2026-10-25": {"stars": 100}, "2026-10-27": {"stars": 350, "installs": 5}, "2026-10-26": {"stars": 200}}
@@ -219,6 +233,11 @@ class UpdateListTest(StoreTestCase):
             self.store.update(NEWS_ID, status="bogus")
         with self.assertRaises(ValueError):
             self.store.update(NEWS_ID, title="nope")
+        with self.assertRaises(ValueError):
+            self.store.update(NEWS_ID, kind="gadget")
+        self.assertEqual(self.store.update(NEWS_ID, kind="framework")["kind"], "framework")
+        self.assertEqual(len(self.store.list(exclude_kinds="framework")), 0)
+        self.assertEqual(len(self.store.list(exclude_kinds="pack")), 1)
         with self.assertRaises(KeyError):
             self.store.update("nope", status="shown")
 

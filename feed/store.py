@@ -21,7 +21,8 @@ EXPIRE_DAYS = 14
 TITLE_WINDOW_DAYS = 7
 TITLE_SIMILARITY = 0.8
 DEFAULT_OWNER = "oxde"
-UPDATABLE = ("status", "insight", "why", "pick_note")
+UPDATABLE = ("status", "insight", "why", "pick_note", "kind")
+KINDS = ("", "skill", "tool", "framework", "pack", "other")
 
 _TRACKING_PARAMS = ("ref", "fbclid", "gclid", "igshid", "mc_cid", "mc_eid")
 _STOPWORDS = frozenset(
@@ -49,7 +50,8 @@ CREATE TABLE IF NOT EXISTS items (
     shown_at TEXT,
     picked_at TEXT,
     pick_note TEXT NOT NULL DEFAULT '',
-    title_key TEXT NOT NULL DEFAULT ''
+    title_key TEXT NOT NULL DEFAULT '',
+    kind TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS items_status_lane ON items(status, lane);
 CREATE INDEX IF NOT EXISTS items_collected ON items(collected_at);
@@ -145,6 +147,9 @@ class Store:
         with self._connect() as conn:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.executescript(SCHEMA)
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(items)")}
+            if "kind" not in cols:  # databases created before kind existed
+                conn.execute("ALTER TABLE items ADD COLUMN kind TEXT NOT NULL DEFAULT ''")
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.path, timeout=30, isolation_level=None)
@@ -233,6 +238,8 @@ class Store:
         status = fields.get("status")
         if status is not None and status not in STATUSES:
             raise ValueError(f"unknown status {status!r}; allowed: {STATUSES}")
+        if fields.get("kind") is not None and fields["kind"] not in KINDS:
+            raise ValueError(f"unknown kind {fields['kind']!r}; allowed: {KINDS}")
         now_iso = _iso(now or _utcnow())
         sets = [f"{k} = ?" for k in fields]
         values: list[Any] = [fields[k] for k in fields]
@@ -319,6 +326,7 @@ class Store:
         since: datetime | None = None,
         limit: int = 200,
         order: str = "collected",
+        exclude_kinds: str | None = None,
     ) -> list[dict[str, Any]]:
         if order not in ("collected", "score"):
             raise ValueError(f"order must be collected or score, not {order!r}")
@@ -335,6 +343,10 @@ class Store:
         if since is not None:
             where.append("collected_at >= ?")
             params.append(_iso(since))
+        if exclude_kinds:
+            kinds = [k.strip() for k in exclude_kinds.split(",") if k.strip()]
+            where.append(f"kind NOT IN ({','.join('?' for _ in kinds)})")
+            params.extend(kinds)
         sql = "SELECT * FROM items"
         if where:
             sql += " WHERE " + " AND ".join(where)

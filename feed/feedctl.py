@@ -58,8 +58,8 @@ def patch_item(iid: str, **fields: Any) -> dict[str, Any]:
     return _request("PATCH", f"/api/items/{iid}", {k: v for k, v in fields.items() if v is not None})
 
 
-def get_items(status: str | None = None, lane: str | None = None, limit: int = 50, order: str = "collected") -> list[dict[str, Any]]:
-    return _request("GET", "/api/items", query={"status": status, "lane": lane, "limit": limit, "order": order})["items"]
+def get_items(status: str | None = None, lane: str | None = None, limit: int = 50, order: str = "collected", exclude_kinds: str | None = None) -> list[dict[str, Any]]:
+    return _request("GET", "/api/items", query={"status": status, "lane": lane, "limit": limit, "order": order, "exclude_kinds": exclude_kinds})["items"]
 
 
 def render_candidates(items: list[dict[str, Any]], now: dt.datetime | None = None) -> str:
@@ -70,7 +70,8 @@ def render_candidates(items: list[dict[str, Any]], now: dt.datetime | None = Non
     lines = [f"Skill desk candidates · {now.strftime('%a')} {now.day} {now.strftime('%b')}"]
     for n, item in enumerate(items, 1):
         lines.append(f"{n}. [{item['lane']}] {item['title']} — {item['url']}")
-        lines.append(f"   id: {item['id']} · status {item['status']} · score {item.get('score', 0)} · {item.get('source', '')}{_metrics_suffix(item)}")
+        kind = f" · kind {item['kind']}" if item.get("kind") else ""
+        lines.append(f"   id: {item['id']} · status {item['status']}{kind} · score {item.get('score', 0)} · {item.get('source', '')}{_metrics_suffix(item)}")
         summary = " ".join((item.get("summary") or "").split())
         if summary:
             lines.append(f"   summary: {summary[:220]}{'…' if len(summary) > 220 else ''}")
@@ -82,7 +83,11 @@ def render_candidates(items: list[dict[str, Any]], now: dt.datetime | None = Non
 def render_items(items: list[dict[str, Any]]) -> str:
     if not items:
         return "No items."
-    return "\n".join(f"{i['id']} · {i['status']} · {i['lane']} · {i['title']} — {i['url']}" for i in items)
+    return "\n".join(
+        f"{i['id']} · {i['status']} · {i['lane']}{(' · ' + i['kind']) if i.get('kind') else ''} · {i['title']} — {i['url']}"
+        + (f"\n   why: {i['why']}" if i.get("why") else "")
+        for i in items
+    )
 
 
 def get_stats(days: int = 7) -> dict[str, Any]:
@@ -199,6 +204,7 @@ def main(argv: list[str] | None = None) -> int:
     status.add_argument("status")
     status.add_argument("--insight")
     status.add_argument("--why")
+    status.add_argument("--kind", choices=["skill", "tool", "framework", "pack", "other"])
     lst = sub.add_parser("list", help="list items with their ids (default: offered, shown, picked)")
     lst.add_argument("--status", default="offered,shown,picked")
     lst.add_argument("--lane")
@@ -207,6 +213,8 @@ def main(argv: list[str] | None = None) -> int:
     top.add_argument("--lanes", default="skill,repo")
     top.add_argument("--status", default="new,offered,shown")
     top.add_argument("--n", type=int, default=6)
+    top.add_argument("--exclude-kinds", default="framework,other")
+    top.add_argument("--skips", type=int, default=10, help="append the last N skipped items with reasons")
     stats = sub.add_parser("stats", help="print feed stats")
     stats.add_argument("--days", type=int, default=7)
     stats.add_argument("--json", action="store_true")
@@ -220,7 +228,7 @@ def main(argv: list[str] | None = None) -> int:
             item = patch_item(args.id, status="picked", pick_note=args.note)
             print(f"picked {item['id']}: {item['title']}")
         elif args.cmd == "set-status":
-            item = patch_item(args.id, status=args.status, insight=args.insight, why=args.why)
+            item = patch_item(args.id, status=args.status, insight=args.insight, why=args.why, kind=args.kind)
             print(f"{item['id']} -> {item['status']}")
         elif args.cmd == "list":
             print(render_items(get_items(args.status, args.lane, args.limit)))
@@ -229,9 +237,16 @@ def main(argv: list[str] | None = None) -> int:
             per_lane = -(-args.n // max(1, len(lanes)))  # equal share per lane so one lane cannot crowd out the others
             merged: list[dict[str, Any]] = []
             for lane in lanes:
-                merged.extend(get_items(args.status, lane, per_lane, order="score"))
+                merged.extend(get_items(args.status, lane, per_lane, order="score", exclude_kinds=args.exclude_kinds or None))
             merged.sort(key=lambda i: i.get("score", 0), reverse=True)
-            print(render_candidates(merged[: args.n]))
+            text = render_candidates(merged[: args.n])
+            if args.skips and merged:
+                skipped = get_items("skipped", args.lanes, args.skips)
+                if skipped:
+                    text += "\n\nRecently skipped (Mark's bar; do not resurface these):\n" + "\n".join(
+                        f"- {i['title']}" + (f" — {i['why']}" if i.get("why") else "") for i in skipped
+                    )
+            print(text)
         elif args.cmd == "stats":
             data = get_stats(args.days)
             print(json.dumps(data, ensure_ascii=False, indent=1) if args.json else render_stats(data))

@@ -145,6 +145,7 @@ class FeedHandler(SimpleHTTPRequestHandler):
                     since=_parse_since(query.get("since")),
                     limit=int(query.get("limit", "200")),
                     order=query.get("order", "collected"),
+                    exclude_kinds=query.get("exclude_kinds"),
                 )
                 self._json(200, {"items": items})
                 return True
