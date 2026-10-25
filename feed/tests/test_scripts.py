@@ -55,7 +55,8 @@ class HermesFilesTest(unittest.TestCase):
     def test_prompt_contains_gate_and_silent_rule(self):
         text = (FEED / "prompts" / "menu.md").read_text()
         for needle in (
-            "Why Mark?",
+            "Why would Mark's audience care?",
+            "Audience: <why the audience cares>",
             "Why now?",
             "What could a generic AI creator not honestly write here?",
             "at most one verification fetch per item",

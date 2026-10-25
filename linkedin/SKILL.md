@@ -50,3 +50,18 @@ Build the table, checklist, decision rule, or other saveable artifact first. The
 ### Engagement
 
 Scan read-only. Select a few posts where the user can add a real datum, disagreement, field receipt, correction, reframe, or hard question. Never default to generic praise.
+
+## Research menu picks
+
+When the topic comes from a research menu that the `feed-menu` job posted in this chat (numbered
+items with lanes NEWS / SKILLS / REPOS), record the pick **before** researching, so the feed
+never offers it again and the stats stay true:
+
+```
+bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh pick <id> --note "<the user's words>"
+```
+
+The `id` is on the menu line (`id: <hex>`); if the menu's ids are not in context, run
+`bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh menu` is wrong (it offers new items); instead
+run `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh stats` and ask which item was meant.
+After the post is live, run `... set-status <id> posted`; on a skip, `... set-status <id> skipped`.

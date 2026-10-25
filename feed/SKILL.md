@@ -20,7 +20,7 @@ own words, often by voice: "news post about 2", "let's do the skill one", "video
 
    The script finds the checkout and the feed credentials itself; call it from any directory.
 3. Start the `linkedin-writer` flow with this brief: the item's title, url, the `Insight` and
-   `Why you` lines from the menu, and Mark's note. The writer's own rules apply unchanged (voice,
+   `Audience` lines from the menu, and Mark's note. The writer's own rules apply unchanged (voice,
    anti-slop pass, visual decision, exact approval before any publish).
 4. When the post is published through the writer's publish step, run
    `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh set-status <id> posted`. When Mark says skip, drop, or no, run

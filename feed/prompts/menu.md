@@ -21,9 +21,12 @@ If the injected text is `Research menu: nothing new.` reply exactly `[SILENT]`.
    non-Telegram item, drop it. Do not browse further.
 3. Apply the gate to each remaining item and keep only those that pass all three:
 
-   Why Mark?
+   Why would Mark's audience care? (AI engineers and operators: what does it change for them?)
    Why now?
    What could a generic AI creator not honestly write here?
+
+   Mark's own standing is a bonus, not a filter: an item can pass because the audience needs
+   it even when Mark has no personal receipt on it yet.
 
 4. Keep 3 to 6 items. Prefer a mix of lanes (at least one news and one skill or repo when both
    exist). If fewer than three pass, send what you have; do not pad.
@@ -34,7 +37,7 @@ If the injected text is `Research menu: nothing new.` reply exactly `[SILENT]`.
    bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh set-status <id> skipped
 
    `shown` for items you list, `skipped` for items you drop. `insight` is the one fact or
-   mechanism most coverage misses. `why` is why this is Mark's to say, in one blunt line. Do not
+   mechanism most coverage misses. `why` is why the audience cares, in one blunt line. Do not
    search the disk for feedctl; the path above is the only one you need.
 
 ## Message format (send exactly this shape)
@@ -44,12 +47,12 @@ Research menu · <Sat 25 Oct>, <morning|afternoon>
 
 NEWS
 1. <title> — <url>
-   Why you: <why>
+   Audience: <why the audience cares>
    Insight: <insight>
 
 SKILLS
 2. <skill name> (<the exact installs/stars figure from the menu line, e.g. "4,035,425 installs">) — <url>
-   Why you: <why>
+   Audience: <why the audience cares>
    Insight: <insight>
 
 REPOS
