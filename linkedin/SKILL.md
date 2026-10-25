@@ -65,3 +65,7 @@ The `id` is on the menu line (`id: <hex>`). If the ids are not in context, run
 `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh list` (ids of offered, shown and picked
 items) and match the title; never run `feed-ctl.sh menu` for this, it offers new items.
 After the post is live, run `... set-status <id> posted`; on a skip, `... set-status <id> skipped`.
+
+If the pick is in the SKILLS or REPOS lane, or the topic is a skill, repo, pack or workflow tool,
+read the `skill-posts` skill before drafting: it holds the evidence ledger, the five post shapes
+and the examples with numbers for posts people save to use later.
