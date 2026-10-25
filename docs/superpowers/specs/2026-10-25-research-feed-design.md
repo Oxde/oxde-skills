@@ -149,11 +149,12 @@ call: lane scores are not comparable, and a global top-N would give an all-news 
 news day.
 
 One Hermes job in the `writer` profile, `feed-menu`, at 09:30 and 16:00, with `--script
-feed/run_menu.sh` (runs `feedctl menu` against the hosted service and prints it) and
-`--monitor-script` on the same output, so the agent only runs when there is something new.
-The script lives in the Git checkout; `~/.hermes/scripts/` in the writer profile holds a
-symlink to it, matching the Skill Radar pattern. `FEED_URL` and `FEED_TOKEN` live in the
-profile's env, never in Git. The agent writes status back through its terminal tool. Whether the
+feed-run_menu.sh` (runs `feedctl menu` against the hosted service and prints it) and no skills
+attached. Monitor mode was dropped after the first live run: it would run the menu script twice
+per tick and count an extra offer on every item; an empty menu is one cheap model call ending in
+`[SILENT]`. Scripts are copies in the profile's scripts directory (Hermes rejects symlinks that
+resolve outside it) and locate the checkout themselves; `feed-ctl.sh` loads `FEED_URL` and
+`FEED_TOKEN` from the profile env because the agent's shell has neither. See `feed/CRON.md`. The agent writes status back through its terminal tool. Whether the
 scheduled job has that tool grant is checked over SSH during setup; if it does not, the agent
 ends its message with a fenced JSON block and the next `run_menu.sh` ingests it (fallback).
 
