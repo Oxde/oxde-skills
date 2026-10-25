@@ -28,7 +28,7 @@ class CommonTest(unittest.TestCase):
 
     def test_read_sources_sections(self):
         self.assertEqual(common.read_sources("telegram")[0], "data_secrets")
-        self.assertEqual(len(common.read_sources("rss")), 5)
+        self.assertEqual(len(common.read_sources("rss")), 4)
         self.assertEqual(common.read_sources("github_queries")[0], "agent skills | agent skills in:name,description stars:>=10")
         self.assertEqual(common.read_sources("nope"), [])
 

@@ -19,7 +19,7 @@ CGIT_Vines
 https://techcrunch.com/category/artificial-intelligence/feed/
 https://www.theverge.com/rss/ai-artificial-intelligence/index.xml
 https://venturebeat.com/category/ai/feed
-https://www.artificialintelligence-news.com/feed/
+# artificialintelligence-news.com removed 2026-10-26: its feed sits behind a bot captcha and never parses
 https://news.mit.edu/rss/topic/artificial-intelligence2
 
 [clawhub_queries]
