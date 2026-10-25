@@ -29,9 +29,10 @@ The scripts require a normal LinkedIn login in the user's persistent browser ses
 
 ## Scheduler contract
 
+The portable canonical behavior is versioned in [`cron/editorial-radar.md`](cron/editorial-radar.md). Hermes job IDs, delivery destinations, tool grants, and working directories are intentionally host-local.
+
 - 09:00: own-post performance digest, read-only
-- 10:00: first editorial candidate (source leads + niche signal)
-- 16:00: distinct second candidate; skip if it fails the quality gate
+- 10:00 and 16:00: Editorial Radar (source leads + primary verification + compact niche signal)
 - every 15 minutes while an item is genuinely active: ask for the smallest decision; never auto-publish
 - every 30 minutes 08:00–22:30: collect own-post visible metrics locally
 
