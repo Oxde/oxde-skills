@@ -22,12 +22,13 @@ class GithubTest(unittest.TestCase):
             items = repos.github_search("agent skills", "agent skills in:name,description stars:>=10", since_date="2026-10-04", now=NOW)
         url = fetched.call_args[0][0]
         self.assertIn("pushed%3A%3E%3D2026-10-04", url)
-        self.assertEqual(len(items), 1)
+        self.assertEqual(len(items), 2)  # plain search keeps the off-lane repo; rising does not
         item = items[0]
         self.assertEqual(item["url"], "https://github.com/acme/agent-skills")
+        self.assertEqual(item["metrics"]["created"], "2026-10-15")
         self.assertEqual(item["title"], "acme/agent-skills")
         self.assertEqual(item["source"], "github:search:agent skills")
-        self.assertEqual(item["metrics"], {"stars": 1200})
+        self.assertEqual(item["metrics"]["stars"], 1200)
         self.assertEqual(item["published_at"], "2026-10-24T10:00:00+00:00")
         self.assertIn("MIT", item["summary"])
         self.assertEqual(set(item), SCHEMA)
@@ -69,6 +70,7 @@ class GithubTest(unittest.TestCase):
             items = repos.collect(now=NOW)
         url = fetched.call_args[0][0]
         self.assertIn("created%3A%3E%3D2026-10-11", url)
+        self.assertEqual([i["title"] for i in items], ["acme/agent-skills"])  # genealogy repo dropped: off-lane
         self.assertEqual(items[0]["source"], "github:rising:rising agents")
         self.assertGreaterEqual(items[0]["score"], repos.RISING_BONUS)
 
@@ -88,7 +90,7 @@ class GithubTest(unittest.TestCase):
         ), redirect_stderr(err):
             items = repos.collect(now=NOW)
         self.assertIn("producer repos: github:watchlist:obra/superpowers failed: ConnectionError", err.getvalue())
-        self.assertEqual(len(items), 1)  # search hit and watchlist hit are the same repo
+        self.assertEqual(len(items), 2)  # search hit and watchlist hit are the same repo; plus the off-lane one
         self.assertEqual(items[0]["source"], "github:watchlist")
 
 

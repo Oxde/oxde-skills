@@ -36,7 +36,8 @@ AI agent workflows | ai agent workflows in:name,description stars:>=20
 # Rising: created in the last 14 days and already past 50 stars. The strongest "new and gaining
 # traction" signal GitHub search gives without a trending API. `created:` is filled in by the producer.
 [github_rising]
-rising agent skills | agent skills in:name,description,readme stars:>=50
+rising agent skills | agent skills in:name,description stars:>=50
+rising claude code | claude code in:name,description stars:>=50
 rising MCP | mcp server in:name,description stars:>=50
 rising agents | ai agent in:name,description stars:>=100
 

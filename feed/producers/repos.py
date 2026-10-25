@@ -13,7 +13,8 @@ from feed.producers import common
 LANE = "repo"
 DAYS_BACK = 21
 RISING_DAYS = 14
-RISING_BONUS = 20
+RISING_BONUS = 15
+RISING_MIN_RELEVANCE = 4  # keyword score on name + description; README matches alone do not count
 PER_QUERY = 12
 API = "https://api.github.com"
 
@@ -56,9 +57,13 @@ def _item(raw: dict[str, Any], source: str, now: dt.datetime) -> dict[str, Any] 
     topics = ", ".join(raw.get("topics") or [])
     description = " ".join((raw.get("description") or "").split())
     summary = f"{description} · license {license_id}" + (f" · topics {topics}" if topics else "")
+    metrics: dict[str, Any] = {"stars": stars}
+    created = common.parse_dt(raw.get("created_at"))
+    if created:
+        metrics["created"] = created.date().isoformat()
     return common.make_item(
         lane=LANE, source=source, title=raw["full_name"], url=raw["html_url"], summary=summary, published=pushed,
-        score=_score(f"{raw['full_name']} {description} {topics}", stars, pushed, now), metrics={"stars": stars},
+        score=_score(f"{raw['full_name']} {description} {topics}", stars, pushed, now), metrics=metrics,
     )
 
 
@@ -69,9 +74,12 @@ def github_search(label: str, query: str, *, since_date: str, now: dt.datetime |
     out = []
     for raw in payload.get("items", []):
         item = _item(raw, source or f"github:search:{label}", now)
-        if item:
-            item["score"] = common.clamp(item["score"] + bonus)
-            out.append(item)
+        if not item:
+            continue
+        if bonus and common.keyword_score(f"{raw.get('full_name', '')} {raw.get('description') or ''}") < RISING_MIN_RELEVANCE:
+            continue  # rising but off-lane: a popular new repo is not a lead unless it is about agents
+        item["score"] = common.clamp(item["score"] + bonus)
+        out.append(item)
     return out
 
 
