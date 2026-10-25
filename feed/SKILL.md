@@ -30,6 +30,7 @@ own words, often by voice: "news post about 2", "let's do the skill one", "video
 ## Never
 
 - Publish, comment, react, connect, or DM. The writer's approval flow is the only path.
-- Invent an id. If the menu is gone from context, run `bash ~/.hermes/profiles/writer/scripts/feed-run_menu.sh` to print the
-  current offered items, or ask Mark which one he meant.
+- Invent an id. If the menu is gone from context, run
+  `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh list` to see offered, shown and picked
+  items with their ids, or ask Mark which one he meant. Never run `menu` for this.
 - Reply with the whole menu again. One line confirming the pick is enough.

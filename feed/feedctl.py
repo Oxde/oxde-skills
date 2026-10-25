@@ -56,6 +56,16 @@ def patch_item(iid: str, **fields: Any) -> dict[str, Any]:
     return _request("PATCH", f"/api/items/{iid}", {k: v for k, v in fields.items() if v is not None})
 
 
+def get_items(status: str | None = None, lane: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
+    return _request("GET", "/api/items", query={"status": status, "lane": lane, "limit": limit})["items"]
+
+
+def render_items(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return "No items."
+    return "\n".join(f"{i['id']} · {i['status']} · {i['lane']} · {i['title']} — {i['url']}" for i in items)
+
+
 def get_stats(days: int = 7) -> dict[str, Any]:
     return _request("GET", "/api/stats", query={"days": days})
 
@@ -154,6 +164,10 @@ def main(argv: list[str] | None = None) -> int:
     status.add_argument("status")
     status.add_argument("--insight")
     status.add_argument("--why")
+    lst = sub.add_parser("list", help="list items with their ids (default: offered, shown, picked)")
+    lst.add_argument("--status", default="offered,shown,picked")
+    lst.add_argument("--lane")
+    lst.add_argument("--limit", type=int, default=50)
     stats = sub.add_parser("stats", help="print feed stats")
     stats.add_argument("--days", type=int, default=7)
     stats.add_argument("--json", action="store_true")
@@ -169,6 +183,8 @@ def main(argv: list[str] | None = None) -> int:
         elif args.cmd == "set-status":
             item = patch_item(args.id, status=args.status, insight=args.insight, why=args.why)
             print(f"{item['id']} -> {item['status']}")
+        elif args.cmd == "list":
+            print(render_items(get_items(args.status, args.lane, args.limit)))
         elif args.cmd == "stats":
             data = get_stats(args.days)
             print(json.dumps(data, ensure_ascii=False, indent=1) if args.json else render_stats(data))

@@ -61,7 +61,7 @@ never offers it again and the stats stay true:
 bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh pick <id> --note "<the user's words>"
 ```
 
-The `id` is on the menu line (`id: <hex>`); if the menu's ids are not in context, run
-`bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh menu` is wrong (it offers new items); instead
-run `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh stats` and ask which item was meant.
+The `id` is on the menu line (`id: <hex>`). If the ids are not in context, run
+`bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh list` (ids of offered, shown and picked
+items) and match the title; never run `feed-ctl.sh menu` for this, it offers new items.
 After the post is live, run `... set-status <id> posted`; on a skip, `... set-status <id> skipped`.
