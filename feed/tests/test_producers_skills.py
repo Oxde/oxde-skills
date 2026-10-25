@@ -38,6 +38,8 @@ class ClawhubTest(unittest.TestCase):
         self.assertTrue(all(0 <= i["score"] <= 100 for i in items.values()))
         self.assertEqual(skills.score("plain words", installs=0, created=None, now=NOW), 0)
         self.assertGreater(skills.score("plain words", installs=10_000, created=None, now=NOW), skills.score("plain words", installs=100, created=None, now=NOW))
+        self.assertEqual(skills.score("plain words", installs=4_000_000, created=None, now=NOW), skills.score("plain words", installs=100_000, created=None, now=NOW))  # capped
+        self.assertGreater(skills.score("agent skill", installs=100, created=NOW, now=NOW), skills.score("plain words", installs=4_000_000, created=None, now=NOW))
         self.assertGreater(skills.score("x", installs=0, created=NOW, now=NOW), skills.score("x", installs=0, created=None, now=NOW))
 
 

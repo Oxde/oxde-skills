@@ -16,20 +16,20 @@ own words, often by voice: "news post about 2", "let's do the skill one", "video
    ask one short question naming both; otherwise do not ask.
 2. Record the pick, quoting his words:
 
-   python3 -m feed.feedctl pick <id> --note "<Mark's words>"
+   bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh pick <id> --note "<Mark's words>"
 
-   Run it from the oxde-skills checkout with `FEED_URL` and `FEED_TOKEN` in the environment.
+   The script finds the checkout and the feed credentials itself; call it from any directory.
 3. Start the `linkedin-writer` flow with this brief: the item's title, url, the `Insight` and
    `Why you` lines from the menu, and Mark's note. The writer's own rules apply unchanged (voice,
    anti-slop pass, visual decision, exact approval before any publish).
 4. When the post is published through the writer's publish step, run
-   `python3 -m feed.feedctl set-status <id> posted`. When Mark says skip, drop, or no, run
-   `python3 -m feed.feedctl set-status <id> skipped`. If he asks for a video from it, record
+   `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh set-status <id> posted`. When Mark says skip, drop, or no, run
+   `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh set-status <id> skipped`. If he asks for a video from it, record
    `--note "video: ..."` on the pick and leave the status `picked`; Cutroom reads picked items.
 
 ## Never
 
 - Publish, comment, react, connect, or DM. The writer's approval flow is the only path.
-- Invent an id. If the menu is gone from context, run `bash feed/run_menu.sh` to print the
+- Invent an id. If the menu is gone from context, run `bash ~/.hermes/profiles/writer/scripts/feed-run_menu.sh` to print the
   current offered items, or ask Mark which one he meant.
 - Reply with the whole menu again. One line confirming the pick is enough.

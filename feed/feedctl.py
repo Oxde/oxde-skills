@@ -99,6 +99,9 @@ def render_menu(items: list[dict[str, Any]], now: dt.datetime | None = None) -> 
             number += 1
             lines.append(f"{number}. {item['title']} — {item['url']}")
             lines.append(f"   id: {item['id']} · score {item.get('score', 0)} · {item.get('source', '')}{_metrics_suffix(item)}")
+            summary = " ".join((item.get("summary") or "").split())
+            if summary:
+                lines.append(f"   summary: {summary[:220]}{'…' if len(summary) > 220 else ''}")
     lines += ["", REPLY_HINT]
     return "\n".join(lines)
 

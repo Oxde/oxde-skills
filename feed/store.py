@@ -16,7 +16,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 LANES = ("news", "skill", "repo", "post", "video")
 STATUSES = ("new", "offered", "shown", "picked", "drafted", "posted", "skipped", "expired")
 EXPIRABLE = ("new", "offered", "shown")
-MAX_OFFERS = 3
+MAX_OFFERS = 2
 EXPIRE_DAYS = 14
 TITLE_WINDOW_DAYS = 7
 TITLE_SIMILARITY = 0.8

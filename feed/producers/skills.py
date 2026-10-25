@@ -16,7 +16,8 @@ NEW_WITHIN_DAYS = 7
 
 def score(text: str, *, installs: int, created: dt.datetime | None, now: dt.datetime) -> int:
     fresh = 20 if created is not None and (now - created).days < NEW_WITHIN_DAYS else 0
-    return common.clamp(common.keyword_score(text) * 3 + math.log10(installs + 1) * 10 + fresh)
+    # Installs count for at most 25 points: popularity is a signal, novelty and relevance decide.
+    return common.clamp(common.keyword_score(text) * 3 + min(math.log10(installs + 1), 5) * 5 + fresh)
 
 
 def _ms_to_dt(value: Any) -> dt.datetime | None:

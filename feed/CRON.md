@@ -20,7 +20,7 @@ from the Git checkout into the profile's scripts directory; each copy finds the 
 
 ```bash
 R=~/AI-Agent-Media-Business/oxde-skills; S=~/.hermes/profiles/writer/scripts
-cp $R/feed/run_menu.sh $S/feed-run_menu.sh; cp $R/feed/run_collect.sh $S/feed-run_collect.sh; cp $R/feed/run_stats.sh $S/feed-run_stats.sh
+for f in run_menu run_collect run_stats ctl; do cp $R/feed/$f.sh $S/feed-$f.sh; done
 mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 ```
 
@@ -35,7 +35,6 @@ mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 ```bash
 hermes -p writer cron create "30 9,16 * * *" --name feed-menu \
   --script feed-run_menu.sh \
-  --skill feed --skill linkedin-writer --skill linkedin-hooks \
   --deliver telegram --failure-deliver telegram \
   "$(cat ~/AI-Agent-Media-Business/oxde-skills/feed/prompts/menu.md)"
 
@@ -45,6 +44,10 @@ hermes -p writer cron create "0 9,15 * * *" --name feed-collect --no-agent \
 hermes -p writer cron create "0 18 * * 0" --name feed-stats --no-agent \
   --script feed-run_stats.sh --deliver telegram
 ```
+
+`feed-menu` attaches **no skills**: the writer skills add ~45k characters of context the menu
+job never uses, and the `feed` skill is for the main chat agent that handles Mark's pick (it is
+installed in the profile's skills directory, so that agent loads it on demand).
 
 `--monitor-script` is deliberately not used on `feed-menu`: the monitor would run the menu
 script a second time per tick and count an extra offer on every item. An empty menu is one cheap

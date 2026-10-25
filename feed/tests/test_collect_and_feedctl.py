@@ -84,6 +84,13 @@ class RenderTest(unittest.TestCase):
         self.assertEqual(feedctl.render_menu(items, now=NOW), golden)
         self.assertIn(", afternoon", feedctl.render_menu(items, now=NOW.replace(hour=15)))
 
+    def test_render_menu_adds_summary_line_when_present(self):
+        item = {**_item("news", 1, 80), "id": "aaaa000000000001", "source": "tg:data_secrets", "summary": "OpenAI открыла Decisions API.\nВторая строка " + "x" * 300}
+        text = feedctl.render_menu([item], now=NOW)
+        line = [l for l in text.splitlines() if l.startswith("   summary:")][0]
+        self.assertTrue(line.startswith("   summary: OpenAI открыла Decisions API. Вторая строка"))
+        self.assertLessEqual(len(line), 3 + len("summary: ") + 220 + 1)
+
     def test_render_menu_empty(self):
         self.assertEqual(feedctl.render_menu([], now=NOW), "Research menu: nothing new.")
 
@@ -142,10 +149,8 @@ class LiveClientTest(unittest.TestCase):
         self.assertIn("news: collected 3", out)
         code, out, _ = self._cli(["menu"])
         self.assertIn("news story", out)  # offered items come back until shown or offered three times
-        for _ in range(3):
-            self._cli(["menu"])
         code, out, _ = self._cli(["menu"])
-        self.assertEqual(out.strip(), "Research menu: nothing new.")
+        self.assertEqual(out.strip(), "Research menu: nothing new.")  # two offers each, never shown
 
     def test_feedctl_reports_http_error_with_body(self):
         code, out, err = self._cli(["set-status", "nope", "shown"])

@@ -38,6 +38,12 @@ class RunMenuScriptTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(result.stdout.startswith("Feed stats · last 7 days"))
 
+    def test_ctl_wrapper_runs_feedctl_from_anywhere(self):
+        env = {**self.env, "HOME": self.tmp.name}
+        result = subprocess.run(["bash", str(FEED / "ctl.sh"), "stats"], env=env, cwd=self.tmp.name, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(result.stdout.startswith("Feed stats"))
+
     def test_run_collect_script_is_executable_and_points_at_collect(self):
         text = (FEED / "run_collect.sh").read_text()
         self.assertIn("feed.collect", text)
@@ -53,7 +59,9 @@ class HermesFilesTest(unittest.TestCase):
             "Why now?",
             "What could a generic AI creator not honestly write here?",
             "at most one verification fetch per item",
-            "feedctl set-status",
+            "feed-ctl.sh set-status",
+            "set-status <id> skipped",
+            "Never invent a number",
             "--insight",
             "reply exactly `[SILENT]`",
             "Research menu: nothing new",
@@ -67,7 +75,7 @@ class HermesFilesTest(unittest.TestCase):
         self.assertTrue(any(l.startswith("description:") for l in lines[1:6]))
         self.assertIn("---", lines[2:8])
         text = "\n".join(lines)
-        self.assertIn("feedctl pick", text)
+        self.assertIn("feed-ctl.sh pick", text)
         self.assertIn("linkedin-writer", text)
         self.assertIn("set-status", text)
 

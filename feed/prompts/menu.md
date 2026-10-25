@@ -15,7 +15,10 @@ If the injected text is `Research menu: nothing new.` reply exactly `[SILENT]`.
    economics, AI infrastructure, security, labor impact).
 2. For each item you intend to list, do **at most one verification fetch per item**: open the
    canonical URL (or the primary source it points to) with the web tool and confirm the title is
-   true and current. If you cannot verify it, drop it. Do not browse further.
+   true and current. Telegram items (`tg:` sources) already carry their post text in the
+   `summary:` line; the t.me page itself extracts badly, so verify the link or product the post
+   names instead, and if there is none, judge the item on its summary. If you cannot verify a
+   non-Telegram item, drop it. Do not browse further.
 3. Apply the gate to each remaining item and keep only those that pass all three:
 
    Why Mark?
@@ -24,13 +27,15 @@ If the injected text is `Research menu: nothing new.` reply exactly `[SILENT]`.
 
 4. Keep 3 to 6 items. Prefer a mix of lanes (at least one news and one skill or repo when both
    exist). If fewer than three pass, send what you have; do not pad.
-5. Write back every item you list, so the feed remembers it and the writer gets the context:
+5. Write back **every** item from the menu, so nothing is offered twice. The script below finds
+   the feed and its credentials by itself; call it exactly like this, from any directory:
 
-   python3 -m feed.feedctl set-status <id> shown --insight "<one line>" --why "<one line>"
+   bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh set-status <id> shown --insight "<one line>" --why "<one line>"
+   bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh set-status <id> skipped
 
-   `insight` is the one fact or mechanism most coverage misses. `why` is why this is Mark's to
-   say, in one blunt line. Run the command from the oxde-skills checkout with FEED_URL and
-   FEED_TOKEN in the environment.
+   `shown` for items you list, `skipped` for items you drop. `insight` is the one fact or
+   mechanism most coverage misses. `why` is why this is Mark's to say, in one blunt line. Do not
+   search the disk for feedctl; the path above is the only one you need.
 
 ## Message format (send exactly this shape)
 
@@ -43,7 +48,7 @@ NEWS
    Insight: <insight>
 
 SKILLS
-2. <skill name> (<installs this week, new?>) — <url>
+2. <skill name> (<the exact installs/stars figure from the menu line, e.g. "4,035,425 installs">) — <url>
    Why you: <why>
    Insight: <insight>
 
@@ -55,4 +60,6 @@ Reply with a number and what you want: "news post about 2", "video 3", "skip all
 
 Keep the numbering from the injected menu so Mark's reply maps to the right `id`. One line per
 field, no preamble, no sign-off, no emoji, no "great news". Never copy a source's text as the
-insight; say what it means.
+insight; say what it means. Never invent a number: the only figures you may print are the ones on
+the menu lines (installs, stars, score), and never label them "this week" or "new" unless the
+source line says so.

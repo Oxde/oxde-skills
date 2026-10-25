@@ -173,9 +173,9 @@ class MenuTest(StoreTestCase):
         menu = self.store.menu({"news": 3}, now=NOW)
         self.assertEqual([i["url"][-1] for i in menu], ["2", "3", "1"])
 
-    def test_offered_item_returns_at_most_three_times(self):
+    def test_offered_item_returns_at_most_twice(self):
         self.store.ingest([_mk("news", 1)], now=NOW)
-        for _ in range(3):
+        for _ in range(2):
             self.assertEqual(len(self.store.menu({"news": 1}, now=NOW)), 1)
         self.assertEqual(self.store.menu({"news": 1}, now=NOW), [])
 
