@@ -225,7 +225,13 @@ def main(argv: list[str] | None = None) -> int:
         elif args.cmd == "list":
             print(render_items(get_items(args.status, args.lane, args.limit)))
         elif args.cmd == "top":
-            print(render_candidates(get_items(args.status, args.lanes, args.n, order="score")))
+            lanes = [l.strip() for l in args.lanes.split(",") if l.strip()]
+            per_lane = -(-args.n // max(1, len(lanes)))  # equal share per lane so one lane cannot crowd out the others
+            merged: list[dict[str, Any]] = []
+            for lane in lanes:
+                merged.extend(get_items(args.status, lane, per_lane, order="score"))
+            merged.sort(key=lambda i: i.get("score", 0), reverse=True)
+            print(render_candidates(merged[: args.n]))
         elif args.cmd == "stats":
             data = get_stats(args.days)
             print(json.dumps(data, ensure_ascii=False, indent=1) if args.json else render_stats(data))

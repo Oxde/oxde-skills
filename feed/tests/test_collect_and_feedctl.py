@@ -163,6 +163,9 @@ class LiveClientTest(unittest.TestCase):
         self.assertNotIn("picked", out)
         code, out, _ = self._cli(["top", "--lanes", "repo"])
         self.assertEqual(out.strip(), "Skill desk: no candidates.")
+        code, out, _ = self._cli(["top", "--lanes", "news,skill", "--n", "4"])
+        self.assertIn("[skill]", out)  # the lower-scored lane still gets its share
+        self.assertEqual(out.count("\n   id: "), 3)  # 2 news + 1 skill available
         code, out, _ = self._cli(["stats", "--days", "7"])
         self.assertEqual(code, 0)
         self.assertIn("news: collected 3", out)

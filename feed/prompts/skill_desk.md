@@ -24,7 +24,22 @@ questions in one line each:
    `generic` (another take on a solved problem) · `off-lane` (not for this audience).
 
 Evidence rules: numbers only from the page or the menu line; never guess what a repo does from
-its name; "new and gaining stars" is a reason to look, never a reason to recommend.
+its name; "new and gaining stars" is a reason to look, never a reason to recommend. Useful beats
+new: a skill the audience would actually run this week passes even if it is months old; a new one
+with nothing an operator would notice does not.
+
+## Angles worth flagging
+
+When you see one of these, say so in the verdict line, because they make better posts than a
+single breakdown:
+
+- **Comparison**: this one does X better than the option everyone installs (name both, name the
+  difference). "OpenMontage beats the default video skill at Y" is the shape.
+- **Domain roundup**: three or more candidates (or candidates plus known options) in one
+  practical domain Mark's audience works in: motion and video, design and UI, security audits,
+  research, writing. Propose the roundup as one item: "motion skills: A, B, C".
+- **Popular and useful**: high installs on skills.sh or ClawHub *and* a behaviour the audience
+  needs. Popularity alone is `generic`.
 
 ## Remember the weak ones
 
@@ -48,7 +63,7 @@ Skill desk · <Tue 28 Oct>
    <stars/installs · created <date> · growth · license>
    Does: <behaviour in one line>
    Vs <known option>: <the difference, or "nothing an operator would notice">
-   Verdict: <strong | watch>
+   Verdict: <strong | watch> · Angle: <breakdown | comparison vs <X> | roundup: <domain>>
 
 2. ...
 
