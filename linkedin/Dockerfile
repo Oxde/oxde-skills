@@ -1,9 +1,9 @@
-# Build context is the repository root (railway.toml sets dockerfilePath = "linkedin/Dockerfile").
+# Built from the staging directory feed/deploy.sh assembles: Dockerfile, railway.toml, feed/, public/.
 FROM python:3.12-alpine
 
 WORKDIR /app
 COPY feed /app/feed
-COPY linkedin/apps/linkedin-dashboard/public /app/public
+COPY public /app/public
 
 ENV PORT=8080 \
     FEED_STATIC=/app/public \

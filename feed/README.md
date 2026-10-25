@@ -52,8 +52,10 @@ cd ~/AI-Agent-Media-Business/oxde-skills && git pull
 set -a; . ~/.hermes/profiles/writer/.env; set +a
 export RAILWAY_TOKEN="$linkedin_railway_token"
 railway variables --service linkedin-writer --set "FEED_TOKEN=$FEED_TOKEN" --set FEED_DB=/data/feed.db
-railway up --service linkedin-writer --detach
+bash feed/deploy.sh          # stages Dockerfile + feed/ + public/ and runs `railway up`
 curl -s "$FEED_URL/api/health"
 ```
 
-The service needs a volume mounted at `/data` (one-time, billable: ask Mark).
+The service needs a volume mounted at `/data` (created once through the API on 2026-10-25). The
+service has no root directory set on Railway, so the upload root is the build root; that is why
+`deploy.sh` stages a directory with the Dockerfile at its top.

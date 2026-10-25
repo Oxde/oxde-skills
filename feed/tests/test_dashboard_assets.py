@@ -13,10 +13,15 @@ class DockerfileTest(unittest.TestCase):
         self.assertIn("FEED_DB=/data/feed.db", text)
         self.assertIn("FEED_STATIC=/app/public", text)
 
+    def test_deploy_script_stages_feed_and_public(self):
+        text = (ROOT / "feed" / "deploy.sh").read_text()
+        for needle in ("railway up --service", "linkedin/Dockerfile", "feed/", "public/", "RAILWAY_TOKEN"):
+            self.assertIn(needle, text)
+
     def test_railway_toml_points_at_health_and_root_dockerfile(self):
         text = (ROOT / "linkedin" / "railway.toml").read_text()
         self.assertIn('healthcheckPath = "/api/health"', text)
-        self.assertIn('dockerfilePath = "linkedin/Dockerfile"', text)
+        self.assertIn('dockerfilePath = "Dockerfile"', text)
 
 
 class DashboardTest(unittest.TestCase):
