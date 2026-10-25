@@ -12,4 +12,4 @@ if [ -z "${FEED_URL:-}" ] || [ -z "${FEED_TOKEN:-}" ]; then
   fi
 fi
 cd "$ROOT"
-exec "${PYTHON:-python3}" -m feed.feedctl menu --quota "${FEED_QUOTA:-news=4,skill=2,repo=2}"
+exec "${PYTHON:-python3}" -m feed.feedctl menu --quota "${FEED_QUOTA:-news=3,skill=2,repo=2,post=2}"

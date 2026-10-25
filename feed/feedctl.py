@@ -17,7 +17,7 @@ from urllib.parse import urlencode
 from feed.store import velocity
 
 DEFAULT_URL = "http://127.0.0.1:4872"
-DEFAULT_QUOTA = "news=4,skill=2,repo=2"
+DEFAULT_QUOTA = "news=3,skill=2,repo=2,post=2"
 LANE_TITLES = {"news": "NEWS", "skill": "SKILLS", "repo": "REPOS", "post": "POSTS", "video": "VIDEOS"}
 LANE_ORDER = ("news", "skill", "repo", "post", "video")
 REPLY_HINT = 'Reply with a number and what you want: "news post about 2", "video 3", "skip all".'

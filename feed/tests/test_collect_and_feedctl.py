@@ -137,7 +137,7 @@ class LiveClientTest(unittest.TestCase):
         code, out, _ = self._cli(["ingest"], stdin=lines)
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["inserted"], 4)
-        code, out, _ = self._cli(["menu", "--quota", "news=2,skill=2"])
+        code, out, _ = self._cli(["menu", "--quota", "news=2,skill=2"])  # explicit quota; default now includes post
         self.assertEqual(code, 0)
         self.assertTrue(out.startswith("Research menu ·"))
         self.assertIn("SKILLS", out)

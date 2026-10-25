@@ -73,6 +73,8 @@ class HermesFilesTest(unittest.TestCase):
             "feed-ctl.sh set-status",
             "set-status <id> skipped",
             "Never invent a number",
+            "POSTS",
+            "never a fact source on its own",
             "--insight",
             "reply exactly `[SILENT]`",
             "Research menu: nothing new",

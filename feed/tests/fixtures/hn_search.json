@@ -1,0 +1,6 @@
+{"hits": [
+ {"objectID": "1001", "title": "Show HN: Agent skills registry with signed manifests", "url": "https://example.dev/skills-registry", "points": 142, "num_comments": 37, "created_at": "2026-10-25T14:00:00Z"},
+ {"objectID": "1002", "title": "Ask HN: How do you keep Claude Code from rewriting your tests?", "url": null, "points": 61, "num_comments": 80, "created_at": "2026-10-25T09:00:00Z"},
+ {"objectID": "1003", "title": "", "url": "https://example.dev/empty", "points": 9, "num_comments": 0, "created_at": "2026-10-25T09:00:00Z"},
+ {"objectID": "1004", "title": "Tool book of a Nuremberg knight from 1505", "url": "https://example.dev/knight", "points": 161, "num_comments": 80, "created_at": "2026-10-25T09:00:00Z"}
+]}

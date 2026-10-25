@@ -135,7 +135,7 @@ class FeedHandler(SimpleHTTPRequestHandler):
                 self._json(200, counts)
                 return True
             if path == "/api/menu" and method == "GET":
-                quota = parse_quota(query.get("quota", "news=4,skill=2,repo=2"))
+                quota = parse_quota(query.get("quota", "news=3,skill=2,repo=2,post=2"))
                 self._json(200, {"items": self.store.menu(quota)})
                 return True
             if path == "/api/items" and method == "GET":

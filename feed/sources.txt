@@ -6,6 +6,14 @@ data_secrets
 ai_machinelearning_big_data
 human20
 NeuralShit
+# added 2026-10-26 after sampling 12 recent posts each for agent/skill content
+llm_under_hood
+tips_ai
+ppprompt
+neurohive
+ai_newz
+dealerAI
+CGIT_Vines
 
 [rss]
 https://techcrunch.com/category/artificial-intelligence/feed/
@@ -46,3 +54,15 @@ anthropics/skills
 vercel-labs/agent-skills
 openai/skills
 obra/superpowers
+
+# Public discussion feeds for the `post` lane: what people are talking about, with votes.
+[hn_queries]
+agent skills
+claude code
+codex
+mcp server
+ai agents
+hermes agent
+
+[lobsters_tags]
+ai
