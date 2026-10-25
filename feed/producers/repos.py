@@ -12,6 +12,8 @@ from feed.producers import common
 
 LANE = "repo"
 DAYS_BACK = 21
+RISING_DAYS = 14
+RISING_BONUS = 20
 PER_QUERY = 12
 API = "https://api.github.com"
 
@@ -60,14 +62,15 @@ def _item(raw: dict[str, Any], source: str, now: dt.datetime) -> dict[str, Any] 
     )
 
 
-def github_search(label: str, query: str, *, since_date: str, now: dt.datetime | None = None) -> list[dict[str, Any]]:
+def github_search(label: str, query: str, *, since_date: str, now: dt.datetime | None = None, source: str | None = None, bonus: int = 0) -> list[dict[str, Any]]:
     now = now or dt.datetime.now(dt.timezone.utc)
     url = f"{API}/search/repositories?" + urlencode({"q": f"{query} pushed:>={since_date}", "sort": "updated", "order": "desc", "per_page": PER_QUERY})
     payload = _fetch(url)
     out = []
     for raw in payload.get("items", []):
-        item = _item(raw, f"github:search:{label}", now)
+        item = _item(raw, source or f"github:search:{label}", now)
         if item:
+            item["score"] = common.clamp(item["score"] + bonus)
             out.append(item)
     return out
 
@@ -89,6 +92,15 @@ def collect(now: dt.datetime | None = None) -> list[dict[str, Any]]:
                 by_url[item["url"]] = item
         except Exception as exc:
             common.report_failure("repos", f"github:search:{label}", exc)
+    rising_since = (now - dt.timedelta(days=RISING_DAYS)).date().isoformat()
+    for entry in common.read_sources("github_rising"):
+        label, _, query = entry.partition("|")
+        label, query = label.strip(), (query or label).strip()
+        try:
+            for item in github_search(label, f"{query} created:>={rising_since}", since_date=since_date, now=now, source=f"github:rising:{label}", bonus=RISING_BONUS):
+                by_url[item["url"]] = item  # rising beats a plain search hit for the same repo
+        except Exception as exc:
+            common.report_failure("repos", f"github:rising:{label}", exc)
     for full_name in common.read_sources("github_watchlist"):
         try:
             item = github_repo(full_name, now=now)

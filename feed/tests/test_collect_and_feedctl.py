@@ -91,6 +91,11 @@ class RenderTest(unittest.TestCase):
         self.assertTrue(line.startswith("   summary: OpenAI открыла Decisions API. Вторая строка"))
         self.assertLessEqual(len(line), 3 + len("summary: ") + 220 + 1)
 
+    def test_render_menu_shows_growth_since_first_seen(self):
+        item = {**_item("repo", 1, 80), "id": "cccc000000000002", "source": "github:rising:x", "metrics": json.dumps({"2026-10-23": {"stars": 100}, "2026-10-25": {"stars": 340}})}
+        text = feedctl.render_menu([item], now=NOW)
+        self.assertIn("stars 340 · +240 stars since 2026-10-23", text)
+
     def test_render_menu_empty(self):
         self.assertEqual(feedctl.render_menu([], now=NOW), "Research menu: nothing new.")
 

@@ -14,6 +14,8 @@ import urllib.request
 from typing import Any
 from urllib.parse import urlencode
 
+from feed.store import velocity
+
 DEFAULT_URL = "http://127.0.0.1:4872"
 DEFAULT_QUOTA = "news=4,skill=2,repo=2"
 LANE_TITLES = {"news": "NEWS", "skill": "SKILLS", "repo": "REPOS", "post": "POSTS", "video": "VIDEOS"}
@@ -87,9 +89,23 @@ def _latest_metrics(raw: Any) -> dict[str, Any]:
     return raw
 
 
+def _history(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw or "{}")
+        except json.JSONDecodeError:
+            return {}
+    return raw if isinstance(raw, dict) else {}
+
+
 def _metrics_suffix(item: dict[str, Any]) -> str:
-    metrics = _latest_metrics(item.get("metrics"))
+    history = _history(item.get("metrics"))
+    metrics = _latest_metrics(history)
     parts = [f"{key} {metrics[key]}" for key in ("installs", "stars") if metrics.get(key) is not None]
+    growth = velocity(history) if history and all(isinstance(v, dict) for v in history.values()) else {}
+    days = sorted(history)
+    for key, delta in growth.items():
+        parts.append(f"+{delta} {key} since {days[0]}")
     return (" · " + " · ".join(parts)) if parts else ""
 
 

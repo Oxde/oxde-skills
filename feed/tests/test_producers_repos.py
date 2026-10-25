@@ -62,6 +62,16 @@ class GithubTest(unittest.TestCase):
         self.assertIn("GH_TOKEN rejected (401)", err.getvalue())
         repos._token_rejected = False
 
+    def test_rising_query_adds_created_filter_source_and_bonus(self):
+        with mock.patch.object(common, "fetch_json", return_value=SEARCH) as fetched, mock.patch.object(
+            common, "read_sources", side_effect=lambda s: {"github_queries": [], "github_rising": ["rising agents | ai agent stars:>=100"], "github_watchlist": []}[s]
+        ):
+            items = repos.collect(now=NOW)
+        url = fetched.call_args[0][0]
+        self.assertIn("created%3A%3E%3D2026-10-11", url)
+        self.assertEqual(items[0]["source"], "github:rising:rising agents")
+        self.assertGreaterEqual(items[0]["score"], repos.RISING_BONUS)
+
     def test_collect_tolerates_failed_source(self):
         def fake(url, timeout=25, headers=None):
             if "search/repositories" in url:
@@ -74,7 +84,7 @@ class GithubTest(unittest.TestCase):
 
         err = io.StringIO()
         with mock.patch.object(common, "fetch_json", side_effect=fake), mock.patch.object(
-            common, "read_sources", side_effect=lambda s: {"github_queries": ["agent skills | agent skills stars:>=10"], "github_watchlist": ["acme/agent-skills", "obra/superpowers"]}[s]
+            common, "read_sources", side_effect=lambda s: {"github_queries": ["agent skills | agent skills stars:>=10"], "github_rising": [], "github_watchlist": ["acme/agent-skills", "obra/superpowers"]}[s]
         ), redirect_stderr(err):
             items = repos.collect(now=NOW)
         self.assertIn("producer repos: github:watchlist:obra/superpowers failed: ConnectionError", err.getvalue())

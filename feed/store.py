@@ -112,6 +112,29 @@ def similar(a: frozenset[str], b: frozenset[str]) -> bool:
     return len(a & b) / len(a | b) >= TITLE_SIMILARITY
 
 
+def velocity(metrics: dict[str, Any]) -> dict[str, int]:
+    """Growth of each counter between the earliest and latest day in a per-day metrics history."""
+    days = sorted(d for d, v in metrics.items() if isinstance(v, dict))
+    if len(days) < 2:
+        return {}
+    first, last = metrics[days[0]], metrics[days[-1]]
+    out = {}
+    for key in ("stars", "installs", "downloads"):
+        if isinstance(first.get(key), (int, float)) and isinstance(last.get(key), (int, float)):
+            delta = int(last[key]) - int(first[key])
+            if delta > 0:
+                out[key] = delta
+    return out
+
+
+def velocity_bonus(metrics: dict[str, Any]) -> int:
+    """0–30 points for counters that grew since first seen; log scale so +50 stars already matters."""
+    import math
+
+    best = max(velocity(metrics).values(), default=0)
+    return int(min(30, round(math.log10(best + 1) * 12))) if best else 0
+
+
 def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
     return {k: row[k] for k in row.keys()}
 
@@ -156,7 +179,7 @@ class Store:
                             merged[day_key] = metrics
                         conn.execute(
                             "UPDATE items SET metrics = ?, score = ? WHERE id = ?",
-                            (json.dumps(merged, ensure_ascii=False), score, iid),
+                            (json.dumps(merged, ensure_ascii=False), min(100, score + velocity_bonus(merged)), iid),
                         )
                         counts["duplicates"] += 1
                         continue

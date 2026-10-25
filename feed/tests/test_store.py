@@ -4,7 +4,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from feed.store import Store, canonical_url, item_id, similar, title_key
+from feed.store import Store, canonical_url, item_id, similar, title_key, velocity, velocity_bonus
 
 NOW = datetime(2026, 10, 25, 12, 0, tzinfo=timezone.utc)
 TOMORROW = NOW + timedelta(days=1)
@@ -105,7 +105,7 @@ class IngestTest(StoreTestCase):
         self.store.ingest([{**SKILL_ITEM, "metrics": {"installs": 200}, "score": 60}], now=TOMORROW)
         item = self.store.get(SKILL_ID)
         self.assertEqual(item["status"], "shown")
-        self.assertEqual(item["score"], 60)
+        self.assertEqual(item["score"], 60 + velocity_bonus({"a": {"installs": 120}, "b": {"installs": 200}}))  # grew, so it earns a bonus
         metrics = json.loads(item["metrics"])
         self.assertEqual(set(metrics), {"2026-10-25", "2026-10-26"})
         self.assertEqual(metrics["2026-10-26"]["installs"], 200)
@@ -113,6 +113,21 @@ class IngestTest(StoreTestCase):
 
     def test_get_unknown_returns_none(self):
         self.assertIsNone(self.store.get("nope"))
+
+
+class VelocityTest(StoreTestCase):
+    def test_velocity_and_bonus(self):
+        hist = {"2026-10-25": {"stars": 100}, "2026-10-27": {"stars": 350, "installs": 5}, "2026-10-26": {"stars": 200}}
+        self.assertEqual(velocity(hist), {"stars": 250})
+        self.assertEqual(velocity({"2026-10-25": {"stars": 100}}), {})
+        self.assertEqual(velocity_bonus({}), 0)
+        self.assertGreater(velocity_bonus(hist), velocity_bonus({"a": {"stars": 1}, "b": {"stars": 10}}))
+        self.assertLessEqual(velocity_bonus({"a": {"stars": 0}, "b": {"stars": 10**6}}), 30)
+
+    def test_reingest_adds_velocity_bonus_to_score(self):
+        self.store.ingest([{**SKILL_ITEM, "metrics": {"stars": 100}, "score": 40}], now=NOW)
+        self.store.ingest([{**SKILL_ITEM, "metrics": {"stars": 400}, "score": 40}], now=TOMORROW)
+        self.assertEqual(self.store.get(SKILL_ID)["score"], 40 + velocity_bonus({"a": {"stars": 100}, "b": {"stars": 400}}))
 
 
 class ExpireTest(StoreTestCase):
