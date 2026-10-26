@@ -151,3 +151,41 @@ had no example with a real object, and kept README phrases ("dry-run the exact p
 ~1,000 characters. What changed: line two defines Scenario; the sneaker is the example; every
 README phrase is gone or explained; the close is Mark's opinion. The number story is the cost
 check in line one of the arrows. The ledger did not change at all.
+
+## Third rewrite of the Scenario draft: the story shape (2026-10-26)
+
+Mark on the plain-words version: "kinda better but still not really nice". It explained the tool
+and still read like a spec. The version in his own shape:
+
+> Your agent can now run the images for a whole ad campaign.
+>
+> Not the generating part. That was never the problem.
+>
+> Give any agent an image API and this is what happens:
+>
+> You ask for twenty ad variants of your sneaker.
+> It generates sixty.
+> The sneaker has three laces in nine of them.
+> The model it picked cost four times the one next to it.
+> And you spend the afternoon sorting the pile by hand.
+>
+> Scenario is an AI platform for images and video. Scenario Labs just open-sourced the skills that teach Claude Code, Codex or Cursor to use it like a designer, not a slot machine.
+>
+> With them loaded, the agent:
+> - asks what every model would charge for the job before generating anything
+> - keeps one photo of the sneaker as the reference, and changes one thing per run
+> - makes the Instagram, banner and story versions from that one photo
+> - checks every image and tells you which ones came out broken, and why
+>
+> Their docs say the quiet part: a seed repeats one roll. It does not keep a character across a campaign. **1.1K stars** in a few weeks says the designers knew.
+>
+> The catch: you need a Scenario account, and the checker only looks at images, so the three-lace sneaker can still slip through.
+>
+> That is the important change. The image model was never the product. The budget check and the rejection step are.
+>
+> Use it if you ship visuals with an agent. Skip it if you just want pretty pictures.
+>
+> `npx skills add scenario-labs/skills`
+
+~1,350 characters. Claim, twist, a scene you can picture, the tool in plain words, the
+mechanism as behaviours, one bold number, the limit, the takeaway, the rule, the install line.

@@ -78,21 +78,41 @@ every ledger field, "sounds like AI, I don't understand the concept". So, before
   one blunt opinion at the end, not like a changelog. "Is it really true?" is the frame: here is
   the claim, here is what it actually does, here is the catch.
 
-## 3. The structure (breakdown shape, the default)
+## 3. The structure: Mark's story shape (the default)
+
+Mark's own published posts are not feature lists. They are a story told in short lines, one
+thought per line, with a twist in line two and one bold number in the middle. His single-agent
+post (in `examples.md`) is the anchor: claim → "Not because X" → the failure pattern everyone
+recognizes → the mechanism → the number → "That is the important change." → the rule. A skill
+post follows the same arc; the install line is just the last beat.
 
 ```
-<hook: claim + number>
-<one sentence: what it is, who made it, what it replaces>
+<line 1: the claim, as a thing that is now true>
+<line 2: the twist: "Not because…", "Is it really true?", or the catch>
 
-<3–5 arrows, each under 15 words, each a behaviour the reader can picture>
-→ ...
-→ ...
+<the failure everyone recognizes, told as a scene in 2–4 short lines:
+ what people do today, what goes wrong, what it costs>
 
-<the number story: one concrete before/after, cost, time, or count from the source>
+<what the thing is, in plain words: category, name, what it sits on>
+
+<the mechanism, 3–5 short lines or arrows: what the agent now does differently,
+ each a behaviour you can picture, with the money or time in the same breath>
+
+<the number, bold, from the source: a before/after, a cost, a count>
+
 <the limit, one line, honest>
+
+<"That is the important change." style line: the one-sentence takeaway>
+<the rule: when to use it, when not>
 <install line or link>
-<close: the usage rule, or "comment X and I send it" once, or nothing>
 ```
+
+Every line stands alone. No paragraph longer than two sentences. Bold one number only.
+
+Hard caps still apply, but length follows the story: Mark's anchor post is ~1,500 characters
+and reads fast because of the line breaks, so 1,200–1,600 is fine for this shape; 900 for the
+arrows-only breakdown. If the ledger has no failure scene and no number, the post is thinner;
+say so in the hand-off.
 
 Hard caps: 900 characters for a breakdown, 60 words for an endorsement, one line per item in a
 list, 100 words for a pack. If the ledger has more than fits, cut behaviours, never the number
