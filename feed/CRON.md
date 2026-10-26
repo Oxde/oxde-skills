@@ -30,7 +30,7 @@ mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 | job | schedule | mode | what |
 |---|---|---|---|
 | `feed-menu` | `30 9,16 * * *` | agent | prints the menu into the prompt; the agent replies `[SILENT]` on `nothing new` |
-| `feed-collect` | `0 9,15 * * *` | `--no-agent`, paused when Railway cron is on | runs the producers against the hosted service |
+| `feed-collect` | `0 9,15 * * *` | `--no-agent`, **paused** since 2026-10-26 (Railway cron verified) | fallback: runs the producers against the hosted service |
 | `feed-stats` | `0 18 * * 0` | `--no-agent` | weekly stats to Telegram |
 | `video-desk` | `0 10 * * 1,4` | agent | competitor reels of the week: topics, outliers, formats, gaps, two or three recordable ideas with hooks |
 | `skill-desk` | `0 11 * * 2,4` | agent + `skill-posts` | judges the top skill/repo candidates against the known option, reports 2–3 with verdicts, marks the generic ones skipped with the reason |
@@ -82,7 +82,8 @@ Its start command `python -m feed.collect`, cron `0 7,13 * * *` (UTC) and restar
 honoured by `railway up`; set them through the API with `serviceInstanceUpdate` if they are ever
 lost). Variables: `FEED_URL=http://linkedin-writer.railway.internal:8080`,
 `FEED_TOKEN=${{linkedin-writer.FEED_TOKEN}}`, `APIFY_API_KEY`. The Hermes `feed-collect` job is
-paused while this runs.
+paused while this runs (first verified Railway run 2026-10-26 15:13 UTC: six producers, 30 new
+items, no failures; VentureBeat rate-limits the Railway address, which the producer tolerates).
 
 ## Railway cron (original note)
 
