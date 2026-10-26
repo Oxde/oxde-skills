@@ -19,7 +19,10 @@ trap 'rm -rf "$STAGE"' EXIT
 cp "$ROOT/linkedin/Dockerfile" "$STAGE/" && cp "$TOML" "$STAGE/railway.toml"
 rsync -a --exclude '__pycache__' --exclude 'tests' --exclude '*.db*' "$ROOT/feed/" "$STAGE/feed/"
 rsync -a "$ROOT/linkedin/apps/linkedin-dashboard/public/" "$STAGE/public/"
-echo "deploying $(du -sh "$STAGE" | cut -f1) from staging to service $SERVICE"
+echo "deploying $(du -sh "$STAGE" | cut -f1) from staging to service $SERVICE with:"
+sed "s/^/  /" "$STAGE/railway.toml"
+# Note: Railway applied neither startCommand nor cronSchedule from this file on 2026-10-26; the
+# feed-collect service has them set explicitly on the service instance (see feed/CRON.md).
 cd "$STAGE"
 
 railway up --service "$SERVICE" --ci

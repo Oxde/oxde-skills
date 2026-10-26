@@ -69,7 +69,17 @@ script a second time per tick and count an extra offer on every item. An empty m
 model call that ends in `[SILENT]`. A `--no-agent` job with empty stdout is silent; `feed-collect`
 prints one summary line, delivered to `local` (the log), and failures go to Telegram.
 
-## Railway cron (when enabled)
+## Railway cron (enabled 2026-10-26)
+
+Service `feed-collect` in project `linkedin_agent`, deployed with `bash feed/deploy.sh --collect`.
+Its start command `python -m feed.collect`, cron `0 7,13 * * *` (UTC) and restart policy
+`NEVER` are set on the service instance itself (the staged `railway.collect.toml` was not
+honoured by `railway up`; set them through the API with `serviceInstanceUpdate` if they are ever
+lost). Variables: `FEED_URL=http://linkedin-writer.railway.internal:8080`,
+`FEED_TOKEN=${{linkedin-writer.FEED_TOKEN}}`, `APIFY_API_KEY`. The Hermes `feed-collect` job is
+paused while this runs.
+
+## Railway cron (original note)
 
 A second service `feed-collect` in project `linkedin_agent`, same image, start command
 `python -m feed.collect`, cron schedule `0 7,13 * * *` (UTC; 09:00 and 15:00 Amsterdam in
