@@ -53,6 +53,7 @@ set -a; . ~/.hermes/profiles/writer/.env; set +a
 export RAILWAY_TOKEN="$linkedin_railway_token"
 railway variables --service linkedin-writer --set "FEED_TOKEN=$FEED_TOKEN" --set FEED_DB=/data/feed.db
 bash feed/deploy.sh          # stages Dockerfile + feed/ + public/ and runs `railway up`
+bash feed/deploy.sh --collect   # the collection cron service (feed-collect), same image
 curl -s "$FEED_URL/api/health"
 ```
 

@@ -66,3 +66,13 @@ hermes agent
 
 [lobsters_tags]
 ai
+
+# Instagram creators watched through Apify (apify/instagram-reel-scraper) for the `video` lane.
+[instagram_creators]
+nick_saraev
+chase.h.ai
+opusjake
+itstundeanthony
+kallawaymarketing
+bradfordmarais
+sandcastles.ai

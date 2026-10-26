@@ -8,13 +8,14 @@ import sys
 from typing import Any, Callable
 
 from feed import feedctl
-from feed.producers import news, posts, repos, skills
+from feed.producers import news, posts, repos, skills, videos
 
 PRODUCERS: dict[str, Callable[[], list[dict[str, Any]]]] = {
     "news": news.collect,
     "skills": skills.collect,
     "repos": repos.collect,
     "posts": posts.collect,
+    "videos": videos.collect,
 }
 
 

@@ -18,6 +18,13 @@ class DockerfileTest(unittest.TestCase):
         for needle in ("railway up --service", "linkedin/Dockerfile", "feed/", "public/", "RAILWAY_TOKEN"):
             self.assertIn(needle, text)
 
+    def test_collect_toml_runs_collect_on_a_schedule(self):
+        text = (ROOT / "linkedin" / "railway.collect.toml").read_text()
+        self.assertIn('startCommand = "python -m feed.collect"', text)
+        self.assertIn('cronSchedule = "0 7,13 * * *"', text)
+        self.assertIn('restartPolicyType = "NEVER"', text)
+        self.assertIn("--collect", (ROOT / "feed" / "deploy.sh").read_text())
+
     def test_railway_toml_points_at_health_and_root_dockerfile(self):
         text = (ROOT / "linkedin" / "railway.toml").read_text()
         self.assertIn('healthcheckPath = "/api/health"', text)

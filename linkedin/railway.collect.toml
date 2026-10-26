@@ -1,0 +1,9 @@
+# Collection cron: runs every producer and posts to the feed service, then exits.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "python -m feed.collect"
+cronSchedule = "0 7,13 * * *"
+restartPolicyType = "NEVER"

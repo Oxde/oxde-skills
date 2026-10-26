@@ -123,7 +123,9 @@ def _history(raw: Any) -> dict[str, Any]:
 def _metrics_suffix(item: dict[str, Any]) -> str:
     history = _history(item.get("metrics"))
     metrics = _latest_metrics(history)
-    parts = [f"{key} {metrics[key]}" for key in ("installs", "stars") if metrics.get(key) is not None]
+    parts = [f"{key} {metrics[key]}" for key in ("installs", "stars", "plays", "points") if metrics.get(key) is not None]
+    if metrics.get("outlier"):
+        parts.append(f"{metrics['outlier']}x creator median")
     if metrics.get("created"):
         parts.append(f"created {metrics['created']}")
     growth = velocity(history) if history and all(isinstance(v, dict) for v in history.values()) else {}
