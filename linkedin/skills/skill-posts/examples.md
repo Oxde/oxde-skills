@@ -72,30 +72,48 @@ completely kills generic AI-slop…" + link. Elaya: "I designed all of these lan
 last two months, using Claude and Cursor with my custom AI designer skill. The skill is open
 source: [repo]" + image grid.
 
-## Worked example in Mark's voice (breakdown shape, from a feed item)
+## LinkedIn-native examples (Apify post search, read 2026-10-26, past month)
 
-Item: hashgraph-online/hol-guard, 997 stars, Apache-2.0, pushed 2026-10-25, read 2026-10-25.
-Ledger filled from the README only, so the receipt field is `none yet` and the post says so.
+| author | likes | comments | reposts | shape | what carries it |
+|---|---|---|---|---|---|
+| Stanislav Beliaev, harness-engineering course repo | 3,074 | 88 | 420 | breakdown | "Harness engineering is the new core AI skill. This repo teaches it for free." then "14 lectures, 8 projects, 4 frontier harness breakdowns", then the number story: same model, same prompt, $9 and 20 min for a broken game vs $200 and 6 h for a playable one; then what you do project by project |
+| Chorouk Malmoum, Voicebox | 1,123 | 71 | 136 | breakdown / free alternative | "The #1 trending repo on GitHub is a free open-source alternative to ElevenLabs + WisprFlow that runs locally"; what it replaces (two subscriptions, your voice on someone's server); arrows: 50K stars, 2.6M downloads, 8 engines, 23 languages; "setup takes one minute" steps; ships an MCP server |
+| Nate Herk, "I tried 100+ GitHub repos for Claude. These 6 are the best." | 343 | 43 | 17 | ranked list | six arrows, one line each, name + what it does; then one client workflow chaining three of them |
+| Nate Herk, "Why the Reverse Engineer Anything repo gained 100k stars in a day" | 407 | 55 | 33 | why-it-blew-up + receipt | the idea in one line, then his own practice: he had Claude watch 30 of his best reels to build his editing skill |
+| Shubham Saboo, Awesome LLM Apps | 983 | 104 | 34 | creator receipt | "my repo just crossed 140,000 stars", then the origin story and the timeline |
 
-> A 997-star repo wants to review every command my agent runs before it runs.
->
-> hol-guard calls itself antivirus for AI agents. It is a local policy layer: no account, pipx
-> install, a wizard that finds the agents on the machine.
->
-> What it does once it is in the loop:
-> – reviews shell commands, file access, package installs and MCP tool calls before they execute
-> – flags secret exposure, destructive operations, prompt injection in tool results, and risky packages
-> – allows, blocks, or asks you, per your policy, and keeps a local receipt of every decision
-> – scans plugins, skills and MCP server config for changes before launch
->
-> Limit, from the docs: coverage depends on the hooks each agent exposes. Codex gets native
-> pre-tool hooks; check the support matrix for yours before trusting it.
->
-> Codex, Claude Code, Cursor, Gemini CLI, Hermes, OpenCode and ten more. Apache-2.0.
-> github.com/hashgraph-online/hol-guard
->
-> I have not run it on my own agents yet. When I do, the post is the findings.
+What these add to the X set: LinkedIn rewards the **number story** (a before/after with cost or
+time), the **"replaces X" framing**, and **one-line arrows**. Long paragraphs under bullets do
+not appear in any of the winners.
 
-Every bullet maps to the README's "What HOL Guard Protects" table and install section; the limit
-is the README's own sentence about per-agent coverage. Number in line 1, four behaviours, a real
-limit, compat and license, the link, and an honest receipt line instead of a fake one.
+## Worked rewrite: the Scenario Labs draft, before and after
+
+The first draft (2026-10-26) was 1,204 characters, correct on every ledger field, and read like a
+product sheet: abstract hook, four bolded headers each followed by a two-sentence paragraph, no
+number story, no "replaces" line. Mark's verdict: not the level. The rewrite below keeps the same
+evidence and applies sections 2, 3 and 5.
+
+> A 1.1K-star skill pack claims your agent can run a whole creative campaign. Is it really true?
+>
+> Scenario Labs open-sourced the workflows for the part after image generation, for Claude Code,
+> Codex, Cursor and 70+ other agents.
+>
+> → prices the exact payload across models before you spend a cent
+> → keeps one mascot consistent across ten images and a video, one change per run
+> → turns one product shot into packshots, ads and every platform size
+> → returns pass / warn / fail on every asset, with the fix
+>
+> Their own docs on the thing people get wrong: a seed repeats one roll, it does not keep a
+> character across a campaign. That is what the reference slots are for.
+>
+> The catch: it needs the Scenario MCP and an account, and the quality gate is image-only.
+>
+> `npx skills add scenario-labs/skills`
+>
+> Verdict: the workflow is worth stealing even if you never pay Scenario. Give your agent a
+> cheap image API and it will still generate 100 bad ones. The gate is the product.
+
+~870 characters. Line one: number, claim, Mark's "is it really true". Line two: who, what,
+what it replaces (the manual part after generation). Four arrows under fifteen words. A number
+story from the docs (seed vs reference). The limit. The install line. A close that is an
+operator rule, not a moral.
