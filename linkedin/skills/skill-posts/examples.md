@@ -117,3 +117,37 @@ evidence and applies sections 2, 3 and 5.
 what it replaces (the manual part after generation). Four arrows under fifteen words. A number
 story from the docs (seed vs reference). The limit. The install line. A close that is an
 operator rule, not a moral.
+
+## Second rewrite of the Scenario draft: the comprehension pass (2026-10-26)
+
+Mark on the 886-character rewrite above: "sounds too AI, I don't understand the concept and what
+Scenario does". It was shaped right and still failed section 2b: it never said what Scenario is,
+had no example with a real object, and kept README phrases ("dry-run the exact payload",
+"pass/fail criteria", "identity drift"). The version that passes:
+
+> A 1.1K-star repo claims your coding agent can run an ad campaign's images end to end. Is it really true?
+>
+> Scenario is a platform that generates images and video with AI models. This repo is a set of
+> skills, instructions your agent reads, that teach Claude Code, Codex or Cursor to use Scenario
+> like a designer would, not like a slot machine.
+>
+> Say you have one photo of your sneaker and need twenty ad images. With the skills installed,
+> the agent:
+>
+> → asks Scenario what each model would charge for the job before generating anything
+> → makes the Instagram, banner and story versions and keeps the sneaker identical in all of them
+> → checks every image and tells you which ones came out broken, with the reason
+>
+> Without them, you write one giant prompt, get a pile of pictures, and guess which ones to pay for.
+>
+> The catch: you need a Scenario account, and the checker only looks at images, so a sneaker with
+> three laces can still get through.
+>
+> `npx skills add scenario-labs/skills`
+>
+> My take: the useful part is not the image generator. It's that the agent prices the job and
+> rejects bad output. Give an agent any cheap image API without that and it will make 100 bad ones.
+
+~1,000 characters. What changed: line two defines Scenario; the sneaker is the example; every
+README phrase is gone or explained; the close is Mark's opinion. The number story is the cost
+check in line one of the arrows. The ledger did not change at all.

@@ -51,6 +51,33 @@ two then says exactly what it is in one sentence. Never "holy shit", "insane", "
 "must install", emoji sirens: on LinkedIn the number does that job. Never a question with no
 answer in the post. Write three hooks, keep the one with the most specific noun.
 
+## 2b. The reader has never heard of it (the comprehension rules)
+
+The post fails if a smart friend who has never heard of the tool cannot say, after reading,
+what it is and what they would use it for. Mark rejected a draft on exactly this: correct on
+every ledger field, "sounds like AI, I don't understand the concept". So, before the structure:
+
+- **Say what it is in plain words, in the first two lines.** The category first ("an image
+  generator", "a code reviewer that runs in your terminal", "a pack of instructions your agent
+  reads"), then the name. If the thing sits on top of another product, name that product and
+  what it does too: "Scenario is a platform that generates images and video with AI models; this
+  repo teaches your coding agent to use it like a designer would".
+- **One picturable example with a real object.** Not "turns one product shot into platform
+  formats" but "you give it one photo of your sneaker; it makes the Instagram, the banner and the
+  story version, keeps the sneaker identical in all of them, and tells you which three came out
+  broken". One example beats four categories.
+- **The jargon test.** Every phrase from the README that an operator friend might not know gets
+  replaced or explained in the same sentence: payload, dry-run, pass/fail criteria, identity
+  drift, reference slots, MCP, baseline, pipeline, orchestration, schema. "MCP" becomes "the
+  connector that lets your agent call it". If a phrase cannot be made plain, it is not a post
+  line; it is a ledger line.
+- **Behaviour, then why it matters.** Each arrow is a behaviour the reader can picture and, when
+  it is not obvious, the money or time it saves in the same breath: "prices every model before
+  it generates, so a 30-image run does not cost you $40 by accident".
+- **Mark's claim-check voice.** The post sounds like Mark telling a friend what he found, with
+  one blunt opinion at the end, not like a changelog. "Is it really true?" is the frame: here is
+  the claim, here is what it actually does, here is the catch.
+
 ## 3. The structure (breakdown shape, the default)
 
 ```
@@ -121,6 +148,8 @@ For a ranked list, a carousel with one item per slide beats a wall of links.
 
 ## 8. Quality check before handing to Mark
 
+- A reader who has never heard of the tool can say what it is and what they'd use it for.
+- There is one example with a real object in it, and no README phrase left unexplained.
 - Line one has a named thing and a number or a behaviour.
 - Every number has a source and a date; the number story is from the source.
 - Every arrow maps to a line in the README, SKILL.md, or the run log, and is under 15 words.
