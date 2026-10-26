@@ -49,6 +49,16 @@ class RunMenuScriptTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, "Skill desk: no candidates.\n")
 
+    def test_run_video_desk_prints_no_reels_on_empty_service(self):
+        result = subprocess.run(["bash", str(FEED / "run_video_desk.sh")], env=self.env, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "Video desk: no reels.\n")
+
+    def test_video_desk_prompt_contains_contract(self):
+        text = (FEED / "prompts" / "video_desk.md").read_text()
+        for needle in ("Video desk: no reels.", "reply exactly `[SILENT]`", "Outliers", "Gaps", "Hook:", "Receipt:", "set-status <id> shown --insight", "Never copy a hook"):
+            self.assertIn(needle, text, needle)
+
     def test_skill_desk_prompt_contains_contract(self):
         text = (FEED / "prompts" / "skill_desk.md").read_text()
         for needle in ("Skill desk: no candidates.", "reply exactly `[SILENT]`", "set-status <id> skipped --kind", "Vs <known option>", "Verdict: <strong | watch>", "Angle:", "Kind: <skill | tool | pack>", "Post: \"<first line>\"", "--kind framework", "read Mark's bar", "Useful beats\nnew", "Domain roundup", '"draft 1"', "never publish, install, execute"):

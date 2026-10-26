@@ -62,6 +62,33 @@ def get_items(status: str | None = None, lane: str | None = None, limit: int = 5
     return _request("GET", "/api/items", query={"status": status, "lane": lane, "limit": limit, "order": order, "exclude_kinds": exclude_kinds})["items"]
 
 
+def render_videos(items: list[dict[str, Any]], days: int, now: dt.datetime | None = None) -> str:
+    """The video desk's input: reels by creator, outlier first, with plays and the caption."""
+    if not items:
+        return "Video desk: no reels."
+    now = now or dt.datetime.now().astimezone()
+    lines = [f"Competitor reels · last {days} days · {now.strftime('%a')} {now.day} {now.strftime('%b')}"]
+    by: dict[str, list[dict[str, Any]]] = {}
+    for item in items:
+        m = _latest_metrics(item.get("metrics"))
+        by.setdefault(m.get("creator") or item.get("source", "").split(":", 1)[-1], []).append(item)
+    n = 0
+    for creator, reels in sorted(by.items(), key=lambda kv: -max(_latest_metrics(r.get("metrics")).get("outlier", 0) or 0 for r in kv[1])):
+        reels.sort(key=lambda r: -(_latest_metrics(r.get("metrics")).get("outlier", 0) or 0))
+        lines += ["", f"@{creator}"]
+        for item in reels:
+            m = _latest_metrics(item.get("metrics"))
+            n += 1
+            lines.append(f"{n}. {m.get('outlier', 0)}x · {m.get('plays', 0)} plays · {m.get('likes', 0)} likes · {m.get('comments', 0)} comments · {m.get('duration', 0)}s · {(item.get('published_at') or '')[:10]}")
+            lines.append(f"   id: {item['id']} · {item['url']}")
+            caption = " ".join((item.get("summary") or item.get("title") or "").split())
+            if caption:
+                lines.append(f"   caption: {caption[:200]}{'…' if len(caption) > 200 else ''}")
+            if item.get("insight"):
+                lines.append(f"   note: {item['insight']}")
+    return "\n".join(lines)
+
+
 def render_candidates(items: list[dict[str, Any]], now: dt.datetime | None = None) -> str:
     """Score-ordered candidates for a desk job: like the menu, with summaries, without offering."""
     if not items:
@@ -217,6 +244,9 @@ def main(argv: list[str] | None = None) -> int:
     top.add_argument("--n", type=int, default=6)
     top.add_argument("--exclude-kinds", default="framework,other")
     top.add_argument("--skips", type=int, default=10, help="append the last N skipped items with reasons")
+    vids = sub.add_parser("videos", help="competitor reels of the last N days, outlier first, for the video desk")
+    vids.add_argument("--days", type=int, default=7)
+    vids.add_argument("--n", type=int, default=30)
     stats = sub.add_parser("stats", help="print feed stats")
     stats.add_argument("--days", type=int, default=7)
     stats.add_argument("--json", action="store_true")
@@ -249,6 +279,10 @@ def main(argv: list[str] | None = None) -> int:
                         f"- {i['title']}" + (f" — {i['why']}" if i.get("why") else "") for i in skipped
                     )
             print(text)
+        elif args.cmd == "videos":
+            since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=args.days)).isoformat()
+            items = _request("GET", "/api/items", query={"lane": "video", "status": "new,offered,shown,picked,drafted,posted", "since": since, "limit": args.n, "order": "score"})["items"]
+            print(render_videos(items, args.days))
         elif args.cmd == "stats":
             data = get_stats(args.days)
             print(json.dumps(data, ensure_ascii=False, indent=1) if args.json else render_stats(data))

@@ -96,6 +96,20 @@ class RenderTest(unittest.TestCase):
         text = feedctl.render_menu([item], now=NOW)
         self.assertIn("stars 340 · created 2026-10-20 · +240 stars since 2026-10-23", text)
 
+    def test_render_videos_groups_by_creator_outlier_first(self):
+        items = [
+            {**_item("video", 1, 70), "id": "v1", "source": "instagram:nick", "summary": "Comment CLONE", "published_at": "2026-10-25T10:00:00+00:00", "metrics": json.dumps({"2026-10-26": {"plays": 66056, "likes": 1207, "comments": 1362, "duration": 38.4, "outlier": 0.87, "creator": "nick"}})},
+            {**_item("video", 2, 80), "id": "v2", "source": "instagram:chase", "summary": "Comment agent", "published_at": "2026-10-24T10:00:00+00:00", "metrics": json.dumps({"2026-10-26": {"plays": 61074, "likes": 1500, "comments": 300, "duration": 30.0, "outlier": 3.82, "creator": "chase"}})},
+        ]
+        text = feedctl.render_videos(items, 7, now=NOW)
+        lines = text.splitlines()
+        self.assertTrue(lines[0].startswith("Competitor reels · last 7 days"))
+        self.assertLess(lines.index("@chase"), lines.index("@nick"))  # higher outlier first
+        self.assertIn("1. 3.82x · 61074 plays · 1500 likes · 300 comments · 30.0s · 2026-10-24", text)
+        self.assertIn("   id: v2 · https://example.com/video/2", text)
+        self.assertIn("   caption: Comment agent", text)
+        self.assertEqual(feedctl.render_videos([], 7, now=NOW), "Video desk: no reels.")
+
     def test_render_menu_empty(self):
         self.assertEqual(feedctl.render_menu([], now=NOW), "Research menu: nothing new.")
 

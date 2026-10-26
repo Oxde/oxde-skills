@@ -20,7 +20,7 @@ from the Git checkout into the profile's scripts directory; each copy finds the 
 
 ```bash
 R=~/AI-Agent-Media-Business/oxde-skills; S=~/.hermes/profiles/writer/scripts
-for f in run_menu run_collect run_stats run_skill_desk ctl; do cp $R/feed/$f.sh $S/feed-$f.sh; done
+for f in run_menu run_collect run_stats run_skill_desk run_video_desk ctl; do cp $R/feed/$f.sh $S/feed-$f.sh; done
 mkdir -p $S/../skills/skill-posts && cp $R/linkedin/skills/skill-posts/*.md $S/../skills/skill-posts/
 mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 ```
@@ -32,6 +32,7 @@ mkdir -p $S/../skills/feed && cp $R/feed/SKILL.md $S/../skills/feed/SKILL.md
 | `feed-menu` | `30 9,16 * * *` | agent | prints the menu into the prompt; the agent replies `[SILENT]` on `nothing new` |
 | `feed-collect` | `0 9,15 * * *` | `--no-agent`, paused when Railway cron is on | runs the producers against the hosted service |
 | `feed-stats` | `0 18 * * 0` | `--no-agent` | weekly stats to Telegram |
+| `video-desk` | `0 10 * * 1,4` | agent | competitor reels of the week: topics, outliers, formats, gaps, two or three recordable ideas with hooks |
 | `skill-desk` | `0 11 * * 2,4` | agent + `skill-posts` | judges the top skill/repo candidates against the known option, reports 2–3 with verdicts, marks the generic ones skipped with the reason |
 
 ```bash
@@ -45,6 +46,10 @@ hermes -p writer cron create "0 9,15 * * *" --name feed-collect --no-agent \
 
 hermes -p writer cron create "0 18 * * 0" --name feed-stats --no-agent \
   --script feed-run_stats.sh --deliver telegram
+
+hermes -p writer cron create "0 10 * * 1,4" --name video-desk \
+  --script feed-run_video_desk.sh --deliver telegram --failure-deliver telegram \
+  "$(cat ~/AI-Agent-Media-Business/oxde-skills/feed/prompts/video_desk.md)"
 
 hermes -p writer cron create "0 11 * * 2,4" --name skill-desk \
   --script feed-run_skill_desk.sh --skill skill-posts \
