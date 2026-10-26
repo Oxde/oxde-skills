@@ -52,6 +52,7 @@ class SkillsshTest(unittest.TestCase):
         self.assertEqual(items[0]["source"], "skillssh:agent skills")
         self.assertEqual(items[0]["title"], "ai-seo (coreyhaines31/marketingskills)")
         self.assertEqual(items[0]["metrics"], {"installs": 150411})
+        self.assertEqual(items[0]["score"], skills.score("ai-seo coreyhaines31/marketingskills", installs=150411, created=None, now=NOW))  # query words not scored
         self.assertIsNone(items[0]["published_at"])
         self.assertEqual(set(items[0]), SCHEMA)
 

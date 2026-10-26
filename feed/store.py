@@ -130,11 +130,17 @@ def velocity(metrics: dict[str, Any]) -> dict[str, int]:
 
 
 def velocity_bonus(metrics: dict[str, Any]) -> int:
-    """0–30 points for counters that grew since first seen; log scale so +50 stars already matters."""
-    import math
-
-    best = max(velocity(metrics).values(), default=0)
-    return int(min(30, round(math.log10(best + 1) * 12))) if best else 0
+    """0–30 points for growth *relative to size* since first seen: +300 stars on 100 is a signal,
+    +1,000 installs on 800,000 is noise. 5% growth ≈ 10 points, 15% or more = 30."""
+    days = sorted(d for d, v in metrics.items() if isinstance(v, dict))
+    if len(days) < 2:
+        return 0
+    first = metrics[days[0]]
+    best = 0.0
+    for key, delta in velocity(metrics).items():
+        base = max(1, int(first.get(key) or 0))
+        best = max(best, delta / base)
+    return int(min(30, round(best * 200)))
 
 
 def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
@@ -274,11 +280,12 @@ class Store:
 
     # -- menu -------------------------------------------------------------------------
 
-    def menu(self, quota: dict[str, int], now: datetime | None = None) -> list[dict[str, Any]]:
+    def menu(self, quota: dict[str, int], now: datetime | None = None, exclude_kinds: str = "framework,other") -> list[dict[str, Any]]:
         """Top unseen items per lane; short lanes donate their slots. Marks results offered."""
         bad = [lane for lane in quota if lane not in LANES]
         if bad:
             raise ValueError(f"unknown lanes {bad}; allowed: {LANES}")
+        excluded = [k.strip() for k in (exclude_kinds or "").split(",") if k.strip()]
         now = now or _utcnow()
         now_iso = _iso(now)
         chosen: list[sqlite3.Row] = []
@@ -287,11 +294,12 @@ class Store:
             try:
                 pools: dict[str, list[sqlite3.Row]] = {}
                 for lane in quota:
+                    kind_clause = f" AND kind NOT IN ({','.join('?' for _ in excluded)})" if excluded else ""
                     pools[lane] = conn.execute(
-                        """SELECT * FROM items
-                           WHERE lane = ? AND (status = 'new' OR (status = 'offered' AND offer_count < ?))
+                        f"""SELECT * FROM items
+                           WHERE lane = ? AND (status = 'new' OR (status = 'offered' AND offer_count < ?)){kind_clause}
                            ORDER BY score DESC, COALESCE(published_at, '') DESC, collected_at DESC""",
-                        (lane, MAX_OFFERS),
+                        (lane, MAX_OFFERS, *excluded),
                     ).fetchall()
                 spare = 0
                 for lane, want in quota.items():

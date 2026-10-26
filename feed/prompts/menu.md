@@ -13,6 +13,15 @@ If the injected text is `Research menu: nothing new.` reply exactly `[SILENT]`.
 
 ## What to do
 
+0. Sort REPOS and SKILLS by kind before anything else. A **framework** (a harness, orchestration
+   layer or agent platform: an alternative to Hermes, Claude Code, OpenClaw, dify) is not a menu
+   item. Tag it and move on:
+   `feed-ctl.sh set-status <id> skipped --kind framework --why "framework: alternative to <X>"`.
+   The one exception: a framework worth a "X vs Hermes" comparison post after a real test; then
+   list it under REPOS with `Angle: comparison vs Hermes` and tag it `shown --kind framework`.
+   A skill that is merely popular (hundreds of thousands of installs, months old, nothing new
+   this week) is `skipped --kind skill --why "generic: evergreen"` unless the growth line shows
+   a real jump.
 1. Read every item. Drop anything that is obviously off-lane for Mark's audience (AI engineers
    and operators: agents, Claude Code / Codex / Hermes, skills and workflows, model launches and
    economics, AI infrastructure, security, labor impact).

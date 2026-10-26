@@ -78,7 +78,10 @@ class GithubTest(unittest.TestCase):
         self.assertGreaterEqual(items[0]["score"], repos.RISING_BONUS)
 
     def test_collect_tolerates_failed_source(self):
+        seen = []
+
         def fake(url, timeout=25, headers=None):
+            seen.append(url)
             if "search/repositories" in url:
                 return SEARCH
             if "/repos/obra/superpowers" in url:
@@ -93,6 +96,8 @@ class GithubTest(unittest.TestCase):
         ), redirect_stderr(err):
             items = repos.collect(now=NOW)
         self.assertIn("producer repos: github:watchlist:obra/superpowers failed: ConnectionError", err.getvalue())
+        search_urls = [u for u in seen if "search/repositories" in u]
+        self.assertTrue(all("created%3A%3E%3D2026-07-27" in u for u in search_urls))  # plain searches: created in the last 90 days
         self.assertEqual(len(items), 2)  # search hit and watchlist hit are the same repo; plus the off-lane one
         self.assertEqual(items[0]["source"], "github:watchlist")
 

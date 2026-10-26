@@ -74,6 +74,8 @@ class HermesFilesTest(unittest.TestCase):
             "set-status <id> skipped",
             "Never invent a number",
             "POSTS",
+            "skipped --kind framework",
+            "generic: evergreen",
             "never a fact source on its own",
             "--insight",
             "reply exactly `[SILENT]`",

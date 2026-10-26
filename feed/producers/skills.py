@@ -63,7 +63,7 @@ def skillssh(query: str, limit: int = 20, now: dt.datetime | None = None) -> lis
         title = f"{name} ({raw.get('source')})" if raw.get("source") else name
         items.append(common.make_item(
             lane=LANE, source=f"skillssh:{query}", title=title, url=f"https://skills.sh/{sid}", summary="",
-            published=None, score=score(f"{name} {query}", installs=installs, created=None, now=now),
+            published=None, score=score(f"{name} {raw.get('source') or ''}", installs=installs, created=None, now=now),
             metrics={"installs": installs},
         ))
     return items

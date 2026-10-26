@@ -135,7 +135,9 @@ class VelocityTest(StoreTestCase):
         self.assertEqual(velocity(hist), {"stars": 250})
         self.assertEqual(velocity({"2026-10-25": {"stars": 100}}), {})
         self.assertEqual(velocity_bonus({}), 0)
-        self.assertGreater(velocity_bonus(hist), velocity_bonus({"a": {"stars": 1}, "b": {"stars": 10}}))
+        self.assertEqual(velocity_bonus(hist), 30)  # 100 -> 350 stars is 250%
+        self.assertEqual(velocity_bonus({"a": {"installs": 839_034}, "b": {"installs": 840_194}}), 0)  # +1160 on 839k is noise
+        self.assertEqual(velocity_bonus({"a": {"installs": 1000}, "b": {"installs": 1050}}), 10)  # 5%
         self.assertLessEqual(velocity_bonus({"a": {"stars": 0}, "b": {"stars": 10**6}}), 30)
 
     def test_reingest_adds_velocity_bonus_to_score(self):
@@ -216,6 +218,13 @@ class MenuTest(StoreTestCase):
 
     def test_menu_on_empty_store_is_empty_list(self):
         self.assertEqual(self.store.menu({"news": 4, "skill": 2, "repo": 2}, now=NOW), [])
+
+    def test_menu_excludes_frameworks_by_default(self):
+        self.store.ingest([_mk("repo", 1, score=90), _mk("repo", 2, score=10)], now=NOW)
+        self.store.update(item_id("https://example.com/repo/1"), kind="framework")
+        menu = self.store.menu({"repo": 2}, now=NOW)
+        self.assertEqual([i["url"][-1] for i in menu], ["2"])
+        self.assertEqual(len(self.store.menu({"repo": 2}, now=NOW, exclude_kinds="")), 2)
 
     def test_menu_rejects_unknown_lane(self):
         with self.assertRaises(ValueError):

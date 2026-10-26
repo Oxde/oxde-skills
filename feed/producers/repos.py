@@ -13,6 +13,7 @@ from feed.producers import common
 LANE = "repo"
 DAYS_BACK = 21
 RISING_DAYS = 14
+SEARCH_CREATED_DAYS = 90  # plain searches return newish repos; the watchlist covers the known ones
 RISING_BONUS = 15
 RISING_MIN_RELEVANCE = 4  # keyword score on name + description; README matches alone do not count
 PER_QUERY = 12
@@ -91,12 +92,13 @@ def github_repo(full_name: str, now: dt.datetime | None = None) -> dict[str, Any
 def collect(now: dt.datetime | None = None) -> list[dict[str, Any]]:
     now = now or dt.datetime.now(dt.timezone.utc)
     since_date = (now - dt.timedelta(days=DAYS_BACK)).date().isoformat()
+    created_floor = (now - dt.timedelta(days=SEARCH_CREATED_DAYS)).date().isoformat()
     by_url: dict[str, dict[str, Any]] = {}
     for entry in common.read_sources("github_queries"):
         label, _, query = entry.partition("|")
         label, query = label.strip(), (query or label).strip()
         try:
-            for item in github_search(label, query, since_date=since_date, now=now):
+            for item in github_search(label, f"{query} created:>={created_floor}", since_date=since_date, now=now):
                 by_url[item["url"]] = item
         except Exception as exc:
             common.report_failure("repos", f"github:search:{label}", exc)
