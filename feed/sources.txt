@@ -76,3 +76,11 @@ itstundeanthony
 kallawaymarketing
 bradfordmarais
 sandcastles.ai
+
+# LinkedIn public posts in Mark's lane (harvestapi/linkedin-post-search, relevance, past week).
+[linkedin_queries]
+Claude Code agents
+agent skills
+AI agents operators
+Codex agents
+MCP server
