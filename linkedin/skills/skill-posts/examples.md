@@ -189,3 +189,11 @@ and still read like a spec. The version in his own shape:
 
 ~1,350 characters. Claim, twist, a scene you can picture, the tool in plain words, the
 mechanism as behaviours, one bold number, the limit, the takeaway, the rule, the install line.
+
+## Verdict on the Scenario series (2026-10-26)
+
+Mark on the story-shape version: "I don't like it at all, maybe better, but the skill choice is
+not good and this is VERY long". Three drafts, three shapes, same topic, same verdict. The lesson
+is section 0: the pick was wrong, not the prose. A niche creative-ops pack that needs a paid
+account is not something his audience installs. The item is skipped in the feed with that reason
+and the draft is parked. Do not revive it.

@@ -13,6 +13,22 @@ or thousands of likes; `examples.md` also holds the worked rewrite that sets the
 Read `VOICE.md` and `ANTI_AI_RULES.md` from the LinkedIn Writer first. They win on any conflict.
 This file adds what is specific to skill posts.
 
+## 0. Before anything: is this worth a post at all?
+
+A weak pick cannot be written into a good post. Three drafts of a niche creative-ops pack on
+2026-10-26 proved it: correct, plain, well shaped, and Mark did not want any of them, because
+his audience would never install the thing. So the first check is not the ledger, it is this:
+
+- Would an AI engineer or operator in Mark's audience install it this week, for a job they
+  actually have? If the honest answer is "some designers might", stop and say so.
+- Can you write the one line Mark would say to a friend about it, with a number or a
+  behaviour, in under 20 words? If not, stop and say so.
+- Is it a thing (a skill, a repo, a pack) or a product with a skill wrapper that needs a paid
+  account to do anything? The second one is a skip unless the free part is the post.
+
+When the answer is no, reply with one line: "not a post: <reason>", and the reason goes to the
+feed as a skip (`feed-ctl.sh set-status <id> skipped --why "..."`). Do not draft anyway.
+
 ## 1. The evidence ledger (before writing a word)
 
 Fill all eight. If one is missing, the post is not ready; say which and stop.
@@ -78,7 +94,30 @@ every ledger field, "sounds like AI, I don't understand the concept". So, before
   one blunt opinion at the end, not like a changelog. "Is it really true?" is the frame: here is
   the claim, here is what it actually does, here is the catch.
 
-## 3. The structure: Mark's story shape (the default)
+## 3a. The short shape (the default for skills)
+
+Mark's reaction to a 1,350-character skill post: "VERY long". The posts he liked best in this
+lane are five sentences (Cloudflare audit: 8.7k likes, 16.4k saves) or three lines (Taste). So
+the default for a skill or repo is **short**, 400–700 characters, no arrows:
+
+```
+<line 1: what it does, as a claim with a number or a behaviour>
+<line 2: what it is, in plain words, and who it is for>
+<line 3–4: the one behaviour that matters, told as what happens when you run it>
+<line 5: the catch, honest>
+<line 6: the install line or link>
+<optional line 7: one usage rule, or Mark's one-line take>
+```
+
+Example of the shape (Cloudflare's post, not Mark's words): "I highly recommend Cloudflare's
+security audit skill. Run it on all your software. Run it with the free models. Use it even if
+you used a model to audit something, it will find much more. Works in all agent harnesses."
+Five sentences, one rule, nothing to skim.
+
+Use the story shape below only when there is a real story: a failure scene from Mark's own
+work, or a number from the source that changes a decision. Never to fill length.
+
+## 3b. The story shape (when there is a story)
 
 Mark's own published posts are not feature lists. They are a story told in short lines, one
 thought per line, with a twist in line two and one bold number in the middle. His single-agent
@@ -109,13 +148,13 @@ post follows the same arc; the install line is just the last beat.
 
 Every line stands alone. No paragraph longer than two sentences. Bold one number only.
 
-Hard caps still apply, but length follows the story: Mark's anchor post is ~1,500 characters
-and reads fast because of the line breaks, so 1,200–1,600 is fine for this shape; 900 for the
-arrows-only breakdown. If the ledger has no failure scene and no number, the post is thinner;
+Length follows the story, but the story shape is the exception: Mark's anchor post is ~1,500
+characters because it is news with a mechanism and a number. A skill rarely earns that. Default
+to 3a. If the ledger has no failure scene and no number, the post is thinner;
 say so in the hand-off.
 
-Hard caps: 900 characters for a breakdown, 60 words for an endorsement, one line per item in a
-list, 100 words for a pack. If the ledger has more than fits, cut behaviours, never the number
+Hard caps: 700 characters for the short shape, 900 for an arrows breakdown, 60 words for an
+endorsement, one line per item in a list, 100 words for a pack. If the ledger has more than fits, cut behaviours, never the number
 story or the limit. Bold labels on arrows are fine; paragraphs under each arrow are not.
 
 For a multi-skill workflow pack, lead with one costly operator pain, then use three or four
