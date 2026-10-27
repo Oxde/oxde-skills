@@ -148,9 +148,12 @@ def resolve_short_link(url: str, timeout: int = 15) -> str:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             target = resp.geturl()
             if any(h in target for h in _SHORT_HOSTS):
-                # lnkd.in sometimes answers with an interstitial page that carries the target in the HTML
-                body = resp.read(20000).decode("utf-8", errors="ignore")
-                m = re.search(r'(?:url=|href=")(https?://(?!(?:www\.)?lnkd\.in)[^"&\s]+)', body)
+                # lnkd.in answers 200 with an interstitial page; the real target is the
+                # external_url_click link. Fall back to the first href that is not LinkedIn's own.
+                body = resp.read(60000).decode("utf-8", errors="ignore")
+                m = re.search(r'data-tracking-control-name="external_url_click"[^>]*href="([^"]+)"', body)
+                if not m:
+                    m = re.search(r'href="(https?://(?!(?:[\w.-]*\.)?(?:lnkd\.in|linkedin\.com|licdn\.com))[^"]+)"', body)
                 if m:
                     target = html.unescape(m.group(1))
     except Exception:

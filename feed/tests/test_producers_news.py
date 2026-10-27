@@ -26,6 +26,19 @@ class CommonTest(unittest.TestCase):
     def test_clamp(self):
         self.assertEqual((common.clamp(-5), common.clamp(50), common.clamp(500)), (0, 50, 100))
 
+    def test_resolve_short_link_reads_lnkd_interstitial(self):
+        common._resolved.clear()
+        page = b'<a href="https://www.linkedin.com/help/x">help</a><a data-tracking-control-name="external_url_click" data-tracking-will-navigate href="https://github.com/lmcache/lmcache">go</a>'
+
+        class Resp:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def geturl(self): return "https://lnkd.in/dhihui3c"
+            def read(self, n=-1): return page
+
+        with mock.patch.object(common.urllib.request, "urlopen", return_value=Resp()):
+            self.assertEqual(common.resolve_short_link("https://lnkd.in/dhihui3c"), "https://github.com/lmcache/lmcache")
+
     def test_resolve_short_link_falls_back_to_input_on_error(self):
         common._resolved.clear()
         with mock.patch.object(common.urllib.request, "urlopen", side_effect=ConnectionError("down")):
