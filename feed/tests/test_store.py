@@ -4,7 +4,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from feed.store import Store, canonical_url, item_id, similar, title_key, velocity, velocity_bonus
+from feed.store import PROVEN_BONUS, Store, canonical_url, extract_links, item_id, similar, title_key, velocity, velocity_bonus
 
 NOW = datetime(2026, 10, 25, 12, 0, tzinfo=timezone.utc)
 TOMORROW = NOW + timedelta(days=1)
@@ -144,6 +144,45 @@ class VelocityTest(StoreTestCase):
         self.store.ingest([{**SKILL_ITEM, "metrics": {"stars": 100}, "score": 40}], now=NOW)
         self.store.ingest([{**SKILL_ITEM, "metrics": {"stars": 400}, "score": 40}], now=TOMORROW)
         self.assertEqual(self.store.get(SKILL_ID)["score"], 40 + velocity_bonus({"a": {"stars": 100}, "b": {"stars": 400}}))
+
+
+class PerformerTest(StoreTestCase):
+    POST = {"lane": "post", "source": "linkedin:agent skills", "title": "Sandhya: Claude Code can now make a knowledge graph prove its answers.",
+            "url": "https://www.linkedin.com/posts/digcreator_x-activity-1", "summary": "Claude Code can now make a knowledge graph prove its answers. Fabio open-sourced it: https://github.com/fabio/open-ontologies/tree/main works today.",
+            "published_at": "2026-10-23T10:00:00+00:00", "score": 60, "metrics": {"likes": 794, "comments": 16, "shares": 82, "author": "Sandhya Ahuja"}}
+    REPO = {"lane": "repo", "source": "github:search:agent skills", "title": "fabio/open-ontologies", "url": "https://github.com/fabio/open-ontologies",
+            "summary": "knowledge graphs with proofs", "published_at": "2026-10-22T10:00:00+00:00", "score": 50, "metrics": {"stars": 900}}
+
+    def test_extract_links_normalizes_repo_urls(self):
+        self.assertEqual(extract_links("see https://github.com/fabio/open-ontologies/tree/main and https://skills.sh/a/b/c."), ["https://github.com/fabio/open-ontologies", "https://skills.sh/a/b/c"])
+
+    def test_linkedin_post_with_engagement_becomes_performer(self):
+        self.store.ingest([self.POST], now=NOW)
+        item = self.store.get(item_id(self.POST["url"]))
+        self.assertEqual(item["kind"], "performer")
+        self.assertEqual(json.loads(item["metrics"])[NOW.date().isoformat()]["links"], ["https://github.com/fabio/open-ontologies"])
+        low = {**self.POST, "url": "https://www.linkedin.com/posts/x-activity-2", "title": "someone: a quiet post about agents", "metrics": {"likes": 12}}
+        self.store.ingest([low], now=NOW)
+        self.assertEqual(self.store.get(item_id(low["url"]))["kind"], "")
+
+    def test_repo_linked_by_performer_is_boosted_whichever_arrives_first(self):
+        self.store.ingest([self.POST], now=NOW)
+        self.store.ingest([self.REPO], now=NOW)
+        repo = self.store.get(item_id(self.REPO["url"]))
+        self.assertEqual(repo["score"], 50 + PROVEN_BONUS)
+        self.assertIn("proven: posted on LinkedIn by Sandhya Ahuja with 794 likes", repo["why"])
+        other = Store(str(Path(self.tmp.name) / "other.db"))
+        other.ingest([self.REPO], now=NOW)
+        other.ingest([self.POST], now=NOW)
+        repo2 = other.get(item_id(self.REPO["url"]))
+        self.assertEqual(repo2["score"], 50 + PROVEN_BONUS)
+        self.assertIn("proven:", repo2["why"])
+
+    def test_performers_query_orders_by_likes(self):
+        self.store.ingest([self.POST, {**self.POST, "url": "https://www.linkedin.com/posts/y-activity-3", "title": "other: Someone built Git for AI agent memory", "summary": "Someone built Git for AI agent memory.", "metrics": {"likes": 1071, "author": "S"}}], now=NOW)
+        perf = self.store.performers(days=30)
+        self.assertEqual([json.loads(i["metrics"])[NOW.date().isoformat()]["likes"] for i in perf], [1071, 794])
+        self.assertEqual(self.store.performers(days=30, min_likes=1000)[0]["title"], "other: Someone built Git for AI agent memory")
 
 
 class ExpireTest(StoreTestCase):

@@ -159,6 +159,9 @@ class FeedHandler(SimpleHTTPRequestHandler):
                 except KeyError:
                     self._error(404, f"unknown item {iid}")
                 return True
+            if path == "/api/performers" and method == "GET":
+                self._json(200, {"items": self.store.performers(days=int(query.get("days", "30")), limit=int(query.get("limit", "30")), min_likes=int(query.get("min_likes", "200")))})
+                return True
             if path == "/api/stats" and method == "GET":
                 self._json(200, self.store.stats(days=int(query.get("days", "7"))))
                 return True

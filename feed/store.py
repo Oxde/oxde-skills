@@ -22,7 +22,9 @@ TITLE_WINDOW_DAYS = 7
 TITLE_SIMILARITY = 0.8
 DEFAULT_OWNER = "oxde"
 UPDATABLE = ("status", "insight", "why", "pick_note", "kind")
-KINDS = ("", "skill", "tool", "framework", "pack", "other")
+KINDS = ("", "skill", "tool", "framework", "pack", "other", "performer")
+PERFORMER_MIN_LIKES = 200
+PROVEN_BONUS = 25
 
 _TRACKING_PARAMS = ("ref", "fbclid", "gclid", "igshid", "mc_cid", "mc_eid")
 _STOPWORDS = frozenset(
@@ -55,7 +57,31 @@ CREATE TABLE IF NOT EXISTS items (
 );
 CREATE INDEX IF NOT EXISTS items_status_lane ON items(status, lane);
 CREATE INDEX IF NOT EXISTS items_collected ON items(collected_at);
+CREATE TABLE IF NOT EXISTS performer_links (
+    link_id TEXT NOT NULL,
+    post_id TEXT NOT NULL,
+    likes INTEGER NOT NULL DEFAULT 0,
+    author TEXT NOT NULL DEFAULT '',
+    posted_at TEXT,
+    PRIMARY KEY (link_id, post_id)
+);
+CREATE INDEX IF NOT EXISTS performer_links_link ON performer_links(link_id);
 """
+
+_LINK_RE = re.compile(r"https?://(?:www\.)?(?:github\.com/[\w.-]+/[\w.-]+|skills\.sh/[\w./-]+|clawhub\.ai/[\w./-]+)")
+
+
+def extract_links(text: str) -> list[str]:
+    """Repo and skill URLs mentioned in a post: the proven-topic signal."""
+    seen: list[str] = []
+    for m in _LINK_RE.finditer(text or ""):
+        url = m.group(0).rstrip(".,);")
+        parts = url.split("/")
+        if "github.com" in url:
+            url = "/".join(parts[:5])  # owner/repo only
+        if url not in seen:
+            seen.append(url)
+    return seen
 
 
 def _utcnow() -> datetime:
@@ -181,16 +207,36 @@ class Store:
                         counts["rejected"] += 1
                         continue
                     iid = item_id(url)
-                    metrics = raw.get("metrics") or {}
+                    metrics = dict(raw.get("metrics") or {})
                     score = int(raw.get("score") or 0)
+                    kind = raw.get("kind") or ""
+                    # A LinkedIn post with real engagement is a performer: a shape worth mirroring,
+                    # and every repo or skill it links to is a proven topic.
+                    if lane == "post" and str(raw.get("source", "")).startswith("linkedin") and int(metrics.get("likes") or 0) >= PERFORMER_MIN_LIKES:
+                        kind = "performer"
+                        links = extract_links(f"{raw.get('summary') or ''} {raw.get('title') or ''}")
+                        if links:
+                            metrics["links"] = links
+                        for link in links:
+                            conn.execute(
+                                "INSERT OR REPLACE INTO performer_links (link_id, post_id, likes, author, posted_at) VALUES (?, ?, ?, ?, ?)",
+                                (item_id(link), iid, int(metrics.get("likes") or 0), str(metrics.get("author") or ""), raw.get("published_at")),
+                            )
+                            conn.execute(
+                                "UPDATE items SET score = MIN(100, score + ?), why = CASE WHEN why = '' THEN ? ELSE why END WHERE id = ? AND lane IN ('repo', 'skill')",
+                                (PROVEN_BONUS, f"proven: posted on LinkedIn by {metrics.get('author') or 'someone'} with {metrics.get('likes')} likes", item_id(link)),
+                            )
+                    proven = conn.execute("SELECT likes, author FROM performer_links WHERE link_id = ? ORDER BY likes DESC LIMIT 1", (iid,)).fetchone() if lane in ("repo", "skill") else None
+                    if proven:
+                        score = min(100, score + PROVEN_BONUS)
                     existing = conn.execute("SELECT metrics FROM items WHERE id = ?", (iid,)).fetchone()
                     if existing is not None:
                         merged = json.loads(existing["metrics"] or "{}")
                         if metrics:
                             merged[day_key] = metrics
                         conn.execute(
-                            "UPDATE items SET metrics = ?, score = ? WHERE id = ?",
-                            (json.dumps(merged, ensure_ascii=False), min(100, score + velocity_bonus(merged)), iid),
+                            "UPDATE items SET metrics = ?, score = ?, kind = CASE WHEN kind = '' THEN ? ELSE kind END WHERE id = ?",
+                            (json.dumps(merged, ensure_ascii=False), min(100, score + velocity_bonus(merged)), kind, iid),
                         )
                         counts["duplicates"] += 1
                         continue
@@ -204,8 +250,8 @@ class Store:
                         continue
                     conn.execute(
                         """INSERT INTO items (id, owner, lane, source, title, url, summary, published_at,
-                           collected_at, score, metrics, title_key)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                           collected_at, score, metrics, title_key, kind, why)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (
                             iid,
                             raw.get("owner") or DEFAULT_OWNER,
@@ -219,6 +265,8 @@ class Store:
                             score,
                             json.dumps({day_key: metrics} if metrics else {}, ensure_ascii=False),
                             json.dumps(sorted(tkey)),
+                            kind,
+                            f"proven: posted on LinkedIn by {proven['author'] or 'someone'} with {proven['likes']} likes" if proven else "",
                         ),
                     )
                     counts["inserted"] += 1
@@ -363,6 +411,25 @@ class Store:
         with self._connect() as conn:
             rows = conn.execute(sql, params).fetchall()
         return [_row_to_dict(r) for r in rows]
+
+    # -- performers -------------------------------------------------------------------
+
+    def performers(self, days: int = 30, limit: int = 30, min_likes: int = PERFORMER_MIN_LIKES) -> list[dict[str, Any]]:
+        """LinkedIn posts in the lane with real engagement, best first: the shapes worth mirroring."""
+        since = _iso(_utcnow() - timedelta(days=days))
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM items WHERE kind = 'performer' AND collected_at >= ? ORDER BY collected_at DESC LIMIT 2000",
+                (since,),
+            ).fetchall()
+        items = [_row_to_dict(r) for r in rows]
+        def likes(item: dict[str, Any]) -> int:
+            hist = json.loads(item.get("metrics") or "{}")
+            latest = hist[max(hist)] if hist else {}
+            return int(latest.get("likes") or 0)
+        items = [i for i in items if likes(i) >= min_likes]
+        items.sort(key=likes, reverse=True)
+        return items[:limit]
 
     # -- stats ------------------------------------------------------------------------
 

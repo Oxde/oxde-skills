@@ -84,3 +84,13 @@ agent skills
 AI agents operators
 Codex agents
 MCP server
+
+# LinkedIn accounts that perform in Mark's lane (harvestapi/linkedin-profile-posts, past month).
+# Seeded 2026-10-27 from the digcreator read and the authors of the best-performing posts found.
+[linkedin_accounts]
+digcreator
+stasbel
+chorouk-malmoum
+nateherkelman
+shubhamsaboo
+yrebryk

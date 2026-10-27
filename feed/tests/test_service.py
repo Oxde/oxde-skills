@@ -96,6 +96,8 @@ class RoundtripTest(ServiceTestCase):
         self.assertEqual((status, len(body["items"])), (200, 1))
         status, _, body = self.call("GET", "/api/stats?days=7")
         self.assertEqual(body["lanes"]["news"]["shown"], 1)
+        status, _, body = self.call("GET", "/api/performers?days=30")
+        self.assertEqual((status, body["items"]), (200, []))
         status, _, body = self.call("GET", "/api/items?order=score&lane=news,skill")
         self.assertEqual([i["score"] for i in body["items"]], [2, 1, 0])
         self.assertEqual(self.call("GET", "/api/items?order=bogus")[0], 400)

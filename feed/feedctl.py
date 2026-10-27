@@ -14,7 +14,7 @@ import urllib.request
 from typing import Any
 from urllib.parse import urlencode
 
-from feed.store import velocity
+from feed.store import PERFORMER_MIN_LIKES, velocity
 
 DEFAULT_URL = "http://127.0.0.1:4872"
 DEFAULT_QUOTA = "news=3,skill=2,repo=2,post=2"
@@ -60,6 +60,45 @@ def patch_item(iid: str, **fields: Any) -> dict[str, Any]:
 
 def get_items(status: str | None = None, lane: str | None = None, limit: int = 50, order: str = "collected", exclude_kinds: str | None = None) -> list[dict[str, Any]]:
     return _request("GET", "/api/items", query={"status": status, "lane": lane, "limit": limit, "order": order, "exclude_kinds": exclude_kinds})["items"]
+
+
+def _hook(text: str) -> str:
+    text = " ".join((text or "").split())
+    for sep in (". ", "! ", "? ", " — ", ": "):
+        if sep in text[:200]:
+            return text.split(sep, 1)[0] + sep.strip()
+    return text[:140]
+
+
+def _format_guess(text: str) -> str:
+    t = text or ""
+    if sum(1 for l in t.splitlines() if l.strip().startswith(("→", "-", "•", "1.", "2."))) >= 3:
+        return "list"
+    if any(k in t.lower() for k in ("i built", "i tried", "i ran", "my repo", "i made")):
+        return "receipt"
+    if any(k in t.lower() for k in ("alternative to", "instead of", " vs ")):
+        return "comparison"
+    return "breakdown"
+
+
+def render_performers(items: list[dict[str, Any]], days: int) -> str:
+    """The performers library: what earned attention in the lane, best first, with the hook, the
+    format, the counters, the repo it links to, and the annotation when a desk has written one."""
+    if not items:
+        return "Performers: none yet."
+    lines = [f"Performers · LinkedIn posts in the lane with {PERFORMER_MIN_LIKES}+ likes · last {days} days"]
+    for n, item in enumerate(items, 1):
+        m = _latest_metrics(item.get("metrics"))
+        lines += ["", f"{n}. {m.get('author') or '?'} · {m.get('likes', 0)} likes · {m.get('comments', 0)} comments · {m.get('shares', 0)} reposts · {(item.get('published_at') or '')[:10]}"]
+        lines.append(f"   hook: {_hook(item.get('summary') or item.get('title'))}")
+        lines.append(f"   format: {_format_guess(item.get('summary') or '')} · id: {item['id']} · {item['url']}")
+        if m.get("links"):
+            lines.append(f"   links: {', '.join(m['links'][:3])}")
+        if item.get("insight"):
+            lines.append(f"   why: {item['insight']}")
+        if item.get("why"):
+            lines.append(f"   borrow: {item['why']}")
+    return "\n".join(lines)
 
 
 def render_videos(items: list[dict[str, Any]], days: int, now: dt.datetime | None = None) -> str:
@@ -247,6 +286,11 @@ def main(argv: list[str] | None = None) -> int:
     vids = sub.add_parser("videos", help="competitor reels of the last N days, outlier first, for the video desk")
     vids.add_argument("--days", type=int, default=7)
     vids.add_argument("--n", type=int, default=30)
+    perf = sub.add_parser("performers", help="the performers library: LinkedIn posts in the lane with real engagement")
+    perf.add_argument("--days", type=int, default=30)
+    perf.add_argument("--n", type=int, default=20)
+    perf.add_argument("--min-likes", type=int, default=PERFORMER_MIN_LIKES)
+    perf.add_argument("--new", action="store_true", help="only performers nobody has annotated yet")
     stats = sub.add_parser("stats", help="print feed stats")
     stats.add_argument("--days", type=int, default=7)
     stats.add_argument("--json", action="store_true")
@@ -283,6 +327,11 @@ def main(argv: list[str] | None = None) -> int:
             since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=args.days)).isoformat()
             items = _request("GET", "/api/items", query={"lane": "video", "status": "new,offered,shown,picked,drafted,posted", "since": since, "limit": args.n, "order": "score"})["items"]
             print(render_videos(items, args.days))
+        elif args.cmd == "performers":
+            items = _request("GET", "/api/performers", query={"days": args.days, "limit": args.n, "min_likes": args.min_likes})["items"]
+            if args.new:
+                items = [i for i in items if not i.get("insight")]
+            print(render_performers(items, args.days))
         elif args.cmd == "stats":
             data = get_stats(args.days)
             print(json.dumps(data, ensure_ascii=False, indent=1) if args.json else render_stats(data))

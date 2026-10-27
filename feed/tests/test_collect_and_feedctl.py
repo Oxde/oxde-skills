@@ -110,6 +110,18 @@ class RenderTest(unittest.TestCase):
         self.assertIn("   caption: Comment agent", text)
         self.assertEqual(feedctl.render_videos([], 7, now=NOW), "Video desk: no reels.")
 
+    def test_render_performers(self):
+        item = {"id": "p1", "url": "https://www.linkedin.com/posts/x", "published_at": "2026-10-23T10:00:00+00:00", "title": "S: Claude Code can now make a knowledge graph prove its answers.",
+                "summary": "Claude Code can now make a knowledge graph prove its answers. Fabio open-sourced it.\n→ a\n→ b\n→ c", "insight": "capability hook",
+                "why": "borrow the hook shape", "metrics": json.dumps({"2026-10-27": {"likes": 794, "comments": 16, "shares": 82, "author": "Sandhya Ahuja", "links": ["https://github.com/fabio/open-ontologies"]}})}
+        text = feedctl.render_performers([item], 30)
+        self.assertIn("1. Sandhya Ahuja · 794 likes · 16 comments · 82 reposts · 2026-10-23", text)
+        self.assertIn("   hook: Claude Code can now make a knowledge graph prove its answers.", text)
+        self.assertIn("   format: list · id: p1 ·", text)
+        self.assertIn("   links: https://github.com/fabio/open-ontologies", text)
+        self.assertIn("   why: capability hook", text)
+        self.assertEqual(feedctl.render_performers([], 30), "Performers: none yet.")
+
     def test_render_menu_empty(self):
         self.assertEqual(feedctl.render_menu([], now=NOW), "Research menu: nothing new.")
 
