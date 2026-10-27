@@ -56,6 +56,15 @@ def to_items(posts: list[dict[str, Any]], now: dt.datetime | None = None) -> lis
         comments = int(eng.get("comments") or 0)
         if likes < MIN_LIKES:
             continue
+        # LinkedIn rewrites every link to lnkd.in; the raw post keeps them in contentAttributes.
+        text_links = [a.get("textLink") for a in (raw.get("contentAttributes") or []) if isinstance(a, dict) and a.get("textLink")]
+        resolved = []
+        for link in text_links[:4]:
+            target = common.resolve_short_link(link) if any(h in link for h in common._SHORT_HOSTS) else link
+            if target and target not in resolved:
+                resolved.append(target)
+        if resolved:
+            content = content + " links: " + " ".join(resolved)
         author = raw.get("author") or {}
         posted = raw.get("postedAt") or {}
         published = common.parse_dt(posted.get("date") if isinstance(posted, dict) else posted)
@@ -64,7 +73,7 @@ def to_items(posts: list[dict[str, Any]], now: dt.datetime | None = None) -> lis
         items.append(common.make_item(
             lane=LANE, source=f"linkedin:{raw.get('query') or 'search'}", title=title, url=url, summary=content,
             published=published, score=_score(content, likes, comments, published, now),
-            metrics={"likes": likes, "comments": comments, "shares": int(eng.get("shares") or 0), "author": name, "author_url": author.get("linkedinUrl") or ""},
+            metrics={"likes": likes, "comments": comments, "shares": int(eng.get("shares") or 0), "author": name, "author_url": author.get("linkedinUrl") or "", **({"resolved_links": resolved} if resolved else {})},
         ))
     items.sort(key=lambda i: (i["score"], i["published_at"] or ""), reverse=True)
     return items

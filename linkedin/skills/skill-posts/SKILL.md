@@ -57,7 +57,10 @@ Fill all eight. If one is missing, the post is not ready; say which and stop.
 | the install line | exact command or path, copied, not typed from memory | `npx skills add owner/repo` |
 | receipt | what Mark actually ran or saw, or `none yet`; never invent | "ran it on the feed service, 3 findings, 1 real" |
 
-Rules on evidence: metadata and README are enough for a *breakdown*; a *receipt post* needs a real
+Star and install counts come from the feed's own line for the item (`feed-ctl.sh list` or the
+menu, both fed by the GitHub and registry APIs), never from a README badge: badges lag by
+thousands (9,795 on a badge vs 11,001 on the API the same morning). Rules on evidence: metadata
+and README are enough for a *breakdown*; a *receipt post* needs a real
 run in a scratch dir with no secrets (see `radar/CRON.md` safety gates). Never install or execute a
 skill you have not read. Numbers come from the page, with the day you read them.
 

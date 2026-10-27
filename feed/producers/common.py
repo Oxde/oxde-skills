@@ -132,3 +132,32 @@ def report_failure(producer: str, source: str, exc: BaseException) -> None:
 def emit(items: Iterable[dict[str, Any]]) -> None:
     for item in items:
         print(json.dumps(item, ensure_ascii=False), flush=True)
+
+
+_SHORT_HOSTS = ("lnkd.in", "bit.ly", "t.co", "buff.ly", "tinyurl.com")
+_resolved: dict[str, str] = {}
+
+
+def resolve_short_link(url: str, timeout: int = 15) -> str:
+    """Follow a LinkedIn (or other) short link to its target; returns the input when it cannot."""
+    if url in _resolved:
+        return _resolved[url]
+    target = url
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="GET")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            target = resp.geturl()
+            if any(h in target for h in _SHORT_HOSTS):
+                # lnkd.in sometimes answers with an interstitial page that carries the target in the HTML
+                body = resp.read(20000).decode("utf-8", errors="ignore")
+                m = re.search(r'(?:url=|href=")(https?://(?!(?:www\.)?lnkd\.in)[^"&\s]+)', body)
+                if m:
+                    target = html.unescape(m.group(1))
+    except Exception:
+        target = url
+    _resolved[url] = target
+    return target
+
+
+def short_links(text_links: list[str]) -> list[str]:
+    return [u for u in text_links if any(h in u for h in _SHORT_HOSTS)]

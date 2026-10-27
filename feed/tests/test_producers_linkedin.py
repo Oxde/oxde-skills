@@ -31,6 +31,14 @@ class LinkedinTest(unittest.TestCase):
         # Fresh and on-topic (Anthropic, agent skills, posted today) outranks older with more likes.
         self.assertEqual(items[0]["url"], "https://www.linkedin.com/posts/acolombiadev_skills-activity-2")
 
+    def test_short_links_are_resolved_and_appended(self):
+        with mock.patch.object(common, "resolve_short_link", return_value="https://github.com/anthropics/skills") as res:
+            items = linkedin.to_items(POSTS, now=NOW)
+        res.assert_called_once_with("https://lnkd.in/abc123")
+        skills = [i for i in items if "acolombiadev" in i["url"]][0]
+        self.assertTrue(skills["summary"].endswith("links: https://github.com/anthropics/skills"))
+        self.assertEqual(skills["metrics"]["resolved_links"], ["https://github.com/anthropics/skills"])
+
     def test_collect_without_key_reports_and_returns_nothing(self):
         err = io.StringIO()
         with mock.patch.dict(os.environ, {"APIFY_API_KEY": "", "APIFY_TOKEN": ""}), mock.patch.object(common, "read_sources", return_value=["agent skills"]), redirect_stderr(err):

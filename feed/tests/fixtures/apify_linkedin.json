@@ -1,6 +1,6 @@
 [
  {"query": "Claude Code agents", "linkedinUrl": "https://www.linkedin.com/posts/yrebryk_gta-activity-1", "content": "Someone used Claude Code to build a new GTA San Andreas mission.\nWild.", "engagement": {"likes": 2215, "comments": 174, "shares": 30}, "author": {"name": "Yurii Rebryk", "linkedinUrl": "https://www.linkedin.com/in/yrebryk"}, "postedAt": {"date": "2026-10-22T10:00:00.000Z"}},
- {"query": "agent skills", "linkedinUrl": "https://www.linkedin.com/posts/acolombiadev_skills-activity-2", "content": "Anthropic just contributed Agent Skills (SKILL.md) to the Agentic AI Foundation.", "engagement": {"likes": 31, "comments": 3}, "author": {"name": "Andrea Griffiths"}, "postedAt": {"date": "2026-10-26T09:00:00.000Z"}},
+ {"query": "agent skills", "linkedinUrl": "https://www.linkedin.com/posts/acolombiadev_skills-activity-2", "content": "Anthropic just contributed Agent Skills (SKILL.md) to the Agentic AI Foundation.", "contentAttributes": [{"type": "TEXT_LINK", "textLink": "https://lnkd.in/abc123"}], "engagement": {"likes": 31, "comments": 3}, "author": {"name": "Andrea Griffiths"}, "postedAt": {"date": "2026-10-26T09:00:00.000Z"}},
  {"query": "agent skills", "linkedinUrl": "https://www.linkedin.com/posts/noise-activity-3", "content": "I'm happy to share that I obtained a new certification", "engagement": {"likes": 0, "comments": 0}, "author": {"name": "Someone"}, "postedAt": {"date": "2026-10-26T09:00:00.000Z"}},
  {"query": "agent skills", "linkedinUrl": "", "content": "no url", "engagement": {"likes": 500}}
 ]

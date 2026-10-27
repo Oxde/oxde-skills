@@ -26,6 +26,12 @@ class CommonTest(unittest.TestCase):
     def test_clamp(self):
         self.assertEqual((common.clamp(-5), common.clamp(50), common.clamp(500)), (0, 50, 100))
 
+    def test_resolve_short_link_falls_back_to_input_on_error(self):
+        common._resolved.clear()
+        with mock.patch.object(common.urllib.request, "urlopen", side_effect=ConnectionError("down")):
+            self.assertEqual(common.resolve_short_link("https://lnkd.in/zzz"), "https://lnkd.in/zzz")
+        self.assertEqual(common.short_links(["https://lnkd.in/a", "https://github.com/x/y"]), ["https://lnkd.in/a"])
+
     def test_read_sources_sections(self):
         self.assertEqual(common.read_sources("telegram")[0], "data_secrets")
         self.assertEqual(len(common.read_sources("rss")), 4)
