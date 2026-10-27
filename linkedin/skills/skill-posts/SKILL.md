@@ -70,6 +70,7 @@ Line one is the whole post for most readers. It carries one of these, in Mark's 
 
 | pattern | example from a post that worked |
 |---|---|
+| **"X can now Y", the capability claim** (Mark's preferred opener, 2026-10-27) | "Claude can now work with ANY office file." · "Claude Code can now make a knowledge graph prove its answers." (794 likes) · "Your AI agent can now git diff a website." (253 likes). Big, simple, one capability, the object the reader already uses. One word in capitals is allowed when it carries the claim. |
 | **the number + the claim** | "A GitHub repo with 40.9K stars just changed how my agents write code." |
 | **free alternative to a paid thing** | "The #1 trending repo on GitHub is a free alternative to ElevenLabs that runs locally." |
 | **new core skill + free source** | "Harness engineering is the new core AI skill. This repo teaches it for free." |
@@ -79,8 +80,8 @@ Line one is the whole post for most readers. It carries one of these, in Mark's 
 | **Mark's claim check** | "Your agent can now ship brand-consistent campaigns. Is it really true?" |
 
 The hook pass (Mark's standing note, 2026-10-27: "not bad, the hook could be stronger"): write
-five hooks, not three. Two must reuse the exact pattern of the chosen performer's hook with
-Mark's object in it. Then score each on four points, one per yes: a named object · a number or
+five hooks, not three. One must be the "X can now Y" capability claim, two must reuse the exact
+pattern of the chosen performer's hook with Mark's object in it. Then score each on four points, one per yes: a named object · a number or
 a picturable behaviour · under 14 words · a tension (something the reader assumed is wrong, or
 a thing that was impossible last month). Keep the highest score; on a tie, the shorter one.
 Show the scores in the hand-off. A hook that scores two or less is not a hook.
