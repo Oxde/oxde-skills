@@ -217,7 +217,7 @@ class Store:
                         links = extract_links(f"{raw.get('summary') or ''} {raw.get('title') or ''}")
                         if links:
                             metrics["links"] = links
-                        for link in links:
+                        for link in links:  # runs for new and re-ingested posts alike, so a backfill works
                             conn.execute(
                                 "INSERT OR REPLACE INTO performer_links (link_id, post_id, likes, author, posted_at) VALUES (?, ?, ?, ?, ?)",
                                 (item_id(link), iid, int(metrics.get("likes") or 0), str(metrics.get("author") or ""), raw.get("published_at")),

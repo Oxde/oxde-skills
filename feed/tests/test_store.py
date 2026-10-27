@@ -178,6 +178,14 @@ class PerformerTest(StoreTestCase):
         self.assertEqual(repo2["score"], 50 + PROVEN_BONUS)
         self.assertIn("proven:", repo2["why"])
 
+    def test_reingest_of_existing_post_backfills_performer_and_links(self):
+        self.store.ingest([{**self.POST, "metrics": {"likes": 5}}], now=NOW)  # arrived before it had engagement
+        self.assertEqual(self.store.get(item_id(self.POST["url"]))["kind"], "")
+        self.store.ingest([self.POST], now=TOMORROW)
+        self.assertEqual(self.store.get(item_id(self.POST["url"]))["kind"], "performer")
+        self.store.ingest([self.REPO], now=TOMORROW)
+        self.assertIn("proven:", self.store.get(item_id(self.REPO["url"]))["why"])
+
     def test_performers_query_orders_by_likes(self):
         self.store.ingest([self.POST, {**self.POST, "url": "https://www.linkedin.com/posts/y-activity-3", "title": "other: Someone built Git for AI agent memory", "summary": "Someone built Git for AI agent memory.", "metrics": {"likes": 1071, "author": "S"}}], now=NOW)
         perf = self.store.performers(days=30)
