@@ -78,6 +78,13 @@ Line one is the whole post for most readers. It carries one of these, in Mark's 
 | **one behaviour, stated as a shock** | "This skill deletes any code my agent writes before the test exists." |
 | **Mark's claim check** | "Your agent can now ship brand-consistent campaigns. Is it really true?" |
 
+The hook pass (Mark's standing note, 2026-10-27: "not bad, the hook could be stronger"): write
+five hooks, not three. Two must reuse the exact pattern of the chosen performer's hook with
+Mark's object in it. Then score each on four points, one per yes: a named object · a number or
+a picturable behaviour · under 14 words · a tension (something the reader assumed is wrong, or
+a thing that was impossible last month). Keep the highest score; on a tie, the shorter one.
+Show the scores in the hand-off. A hook that scores two or less is not a hook.
+
 Rules: a named thing and a number or a behaviour in line one. The claim may sound too good; line
 two then says exactly what it is in one sentence. Never "holy shit", "insane", "game-changer",
 "must install", emoji sirens: on LinkedIn the number does that job. Never a question with no
