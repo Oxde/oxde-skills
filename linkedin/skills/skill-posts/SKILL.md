@@ -29,6 +29,19 @@ his audience would never install the thing. So the first check is not the ledger
 When the answer is no, reply with one line: "not a post: <reason>", and the reason goes to the
 feed as a skip (`feed-ctl.sh set-status <id> skipped --why "..."`). Do not draft anyway.
 
+## 0b. Pick the template: a post that already worked
+
+No draft without a template. The feed keeps a library of LinkedIn posts in Mark's lane that
+earned real engagement, with the hook, the counters, and a desk's note on why it worked:
+
+bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh performers --days 30 --n 20
+
+Pick the one whose shape fits the thing you are writing about (capability hook, free
+alternative, someone-built-X, list, receipt). Write Mark's post in that shape: same placement
+of the number, the plain-words line, the caveat before the link. Never its words. In the
+hand-off, name the template: "written like <author>'s post, <likes> likes, <hook>". If no
+performer fits, say so and use section 3a; that is a weaker post and the hand-off says so.
+
 ## 1. The evidence ledger (before writing a word)
 
 Fill all eight. If one is missing, the post is not ready; say which and stop.

@@ -69,3 +69,10 @@ After the post is live, run `... set-status <id> posted`; on a skip, `... set-st
 If the pick is in the SKILLS or REPOS lane, or the topic is a skill, repo, pack or workflow tool,
 read the `skill-posts` skill before drafting: it holds the evidence ledger, the five post shapes
 and the examples with numbers for posts people save to use later.
+
+## Template from a performer
+
+For every post, news or skill, check the performers library first and pick the one whose shape
+fits: `bash ~/.hermes/profiles/writer/scripts/feed-ctl.sh performers --days 30 --n 20`. It lists
+LinkedIn posts in the lane that earned real engagement, with the hook and a note on why it
+worked. Write in that shape, never in its words, and name the template in the hand-off.

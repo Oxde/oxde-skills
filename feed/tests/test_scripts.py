@@ -64,6 +64,18 @@ class RunMenuScriptTest(unittest.TestCase):
         for needle in ("Skill desk: no candidates.", "reply exactly `[SILENT]`", "set-status <id> skipped --kind", "Vs <known option>", "Verdict: <strong | watch>", "Angle:", "Kind: <skill | tool | pack>", "Post: \"<first line>\"", "--kind framework", "read Mark's bar", "Useful beats\nnew", "Domain roundup", '"draft 1"', "never publish, install, execute"):
             self.assertIn(needle, text, needle)
 
+    def test_run_performers_prints_none_yet_on_empty_service(self):
+        result = subprocess.run(["bash", str(FEED / "run_performers.sh")], env=self.env, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "Performers: none yet.\n")
+
+    def test_performers_prompt_contains_contract(self):
+        text = (FEED / "prompts" / "performers_desk.md").read_text()
+        for needle in ("Performers: none yet.", "reply exactly `[SILENT]`", "set-status <id> shown --insight", "Hooks that worked:", "Shape of the week:", "quoted verbatim"):
+            self.assertIn(needle, text, needle)
+        self.assertIn("performers-desk", (FEED / "CRON.md").read_text())
+        self.assertIn("feed-ctl.sh performers", (FEED / "SKILL.md").read_text() + (ROOT / "linkedin" / "SKILL.md").read_text() + (ROOT / "linkedin" / "skills" / "skill-posts" / "SKILL.md").read_text())
+
     def test_run_collect_script_is_executable_and_points_at_collect(self):
         text = (FEED / "run_collect.sh").read_text()
         self.assertIn("feed.collect", text)
