@@ -11,6 +11,8 @@ import html
 import json
 import re
 import sys
+import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Iterable
@@ -134,33 +136,58 @@ def emit(items: Iterable[dict[str, Any]]) -> None:
         print(json.dumps(item, ensure_ascii=False), flush=True)
 
 
-_SHORT_HOSTS = ("lnkd.in", "bit.ly", "t.co", "buff.ly", "tinyurl.com")
+_SHORT_HOSTS = frozenset({"lnkd.in", "bit.ly", "t.co", "buff.ly", "tinyurl.com"})
 _resolved: dict[str, str] = {}
 
 
+def _host(url: str) -> str:
+    try:
+        return (urllib.parse.urlsplit(url).hostname or "").rstrip(".").lower()
+    except ValueError:
+        return ""
+
+
+def is_short_link(url: str) -> bool:
+    """Exact-host match against the allowlist, https only: never treat arbitrary post text as a link to fetch."""
+    return urllib.parse.urlsplit(url).scheme == "https" and _host(url) in _SHORT_HOSTS
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D401
+        return None  # never follow; the caller reads Location itself
+
+
+_opener = urllib.request.build_opener(_NoRedirect)
+
+
 def resolve_short_link(url: str, timeout: int = 15) -> str:
-    """Follow a LinkedIn (or other) short link to its target; returns the input when it cannot."""
+    """Resolve one allowlisted short link to its target without fetching the target. Only the
+    short-link host is ever contacted; a redirect's Location or the interstitial's external link
+    is returned as text. Returns the input when it cannot resolve."""
     if url in _resolved:
         return _resolved[url]
     target = url
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="GET")
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            target = resp.geturl()
-            if any(h in target for h in _SHORT_HOSTS):
-                # lnkd.in answers 200 with an interstitial page; the real target is the
-                # external_url_click link. Fall back to the first href that is not LinkedIn's own.
-                body = resp.read(60000).decode("utf-8", errors="ignore")
-                m = re.search(r'data-tracking-control-name="external_url_click"[^>]*href="([^"]+)"', body)
-                if not m:
-                    m = re.search(r'href="(https?://(?!(?:[\w.-]*\.)?(?:lnkd\.in|linkedin\.com|licdn\.com))[^"]+)"', body)
-                if m:
-                    target = html.unescape(m.group(1))
-    except Exception:
+    if is_short_link(url):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="GET")
+            try:
+                with _opener.open(req, timeout=timeout) as resp:
+                    body = resp.read(60000).decode("utf-8", errors="ignore")
+                    m = re.search(r'data-tracking-control-name="external_url_click"[^>]*href="([^"]+)"', body)
+                    if not m:
+                        m = re.search(r'href="(https?://(?!(?:[\w.-]*\.)?(?:lnkd\.in|linkedin\.com|licdn\.com))[^"]+)"', body)
+                    if m:
+                        target = html.unescape(m.group(1))
+            except urllib.error.HTTPError as err:
+                if err.code in (301, 302, 303, 307, 308) and err.headers.get("Location"):
+                    target = err.headers["Location"]
+        except Exception:
+            target = url
+    if not target.startswith(("http://", "https://")):
         target = url
     _resolved[url] = target
     return target
 
 
 def short_links(text_links: list[str]) -> list[str]:
-    return [u for u in text_links if any(h in u for h in _SHORT_HOSTS)]
+    return [u for u in text_links if is_short_link(u)]

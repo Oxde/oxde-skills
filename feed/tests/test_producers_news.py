@@ -36,14 +36,30 @@ class CommonTest(unittest.TestCase):
             def geturl(self): return "https://lnkd.in/dhihui3c"
             def read(self, n=-1): return page
 
-        with mock.patch.object(common.urllib.request, "urlopen", return_value=Resp()):
+        with mock.patch.object(common._opener, "open", return_value=Resp()):
             self.assertEqual(common.resolve_short_link("https://lnkd.in/dhihui3c"), "https://github.com/lmcache/lmcache")
 
     def test_resolve_short_link_falls_back_to_input_on_error(self):
         common._resolved.clear()
-        with mock.patch.object(common.urllib.request, "urlopen", side_effect=ConnectionError("down")):
+        with mock.patch.object(common._opener, "open", side_effect=ConnectionError("down")):
             self.assertEqual(common.resolve_short_link("https://lnkd.in/zzz"), "https://lnkd.in/zzz")
         self.assertEqual(common.short_links(["https://lnkd.in/a", "https://github.com/x/y"]), ["https://lnkd.in/a"])
+
+    def test_resolver_only_contacts_allowlisted_hosts(self):
+        common._resolved.clear()
+        with mock.patch.object(common._opener, "open") as opened:
+            for bad in ("https://evil.example/lnkd.in", "http://lnkd.in/plain", "https://lnkd.in.evil.example/x", "https://169.254.169.254/latest", "https://localhost/lnkd.in"):
+                self.assertEqual(common.resolve_short_link(bad), bad)
+            opened.assert_not_called()
+        self.assertFalse(common.is_short_link("https://lnkd.in.evil.example/x"))
+        self.assertTrue(common.is_short_link("https://lnkd.in/abc"))
+
+    def test_resolver_returns_location_without_following(self):
+        common._resolved.clear()
+        err = common.urllib.error.HTTPError("https://lnkd.in/r", 302, "Found", {"Location": "https://github.com/a/b"}, None)
+        with mock.patch.object(common._opener, "open", side_effect=err) as opened:
+            self.assertEqual(common.resolve_short_link("https://lnkd.in/r"), "https://github.com/a/b")
+            self.assertEqual(opened.call_count, 1)
 
     def test_read_sources_sections(self):
         self.assertEqual(common.read_sources("telegram")[0], "data_secrets")

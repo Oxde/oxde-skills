@@ -60,8 +60,8 @@ def to_items(posts: list[dict[str, Any]], now: dt.datetime | None = None) -> lis
         text_links = [a.get("textLink") for a in (raw.get("contentAttributes") or []) if isinstance(a, dict) and a.get("textLink")]
         resolved = []
         for link in text_links[:4]:
-            target = common.resolve_short_link(link) if any(h in link for h in common._SHORT_HOSTS) else link
-            if target and target not in resolved:
+            target = common.resolve_short_link(link) if common.is_short_link(link) else link
+            if target and target.startswith("https://") and target not in resolved:
                 resolved.append(target)
         if resolved:
             content = content + " links: " + " ".join(resolved)
